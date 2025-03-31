@@ -4711,7 +4711,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Coditas-Admin\\.nuget\\packages\\": {},
+    "C:\\Users\\Coditas-Admin.5733-LAP-0753\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
@@ -4720,14 +4720,14 @@
       "projectUniqueName": "C:\\Users\\Coditas-Admin\\Desktop\\C#\\WebApplication1\\WebApplication1.csproj",
       "projectName": "WebApplication1",
       "projectPath": "C:\\Users\\Coditas-Admin\\Desktop\\C#\\WebApplication1\\WebApplication1.csproj",
-      "packagesPath": "C:\\Users\\Coditas-Admin\\.nuget\\packages\\",
+      "packagesPath": "C:\\Users\\Coditas-Admin.5733-LAP-0753\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\Coditas-Admin\\Desktop\\C#\\WebApplication1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Coditas-Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Coditas-Admin.5733-LAP-0753\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

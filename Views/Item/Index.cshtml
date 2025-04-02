@@ -3,17 +3,20 @@
     ViewData["TItle"] = "Index";
 }
 
-<div class="d-flex justify-content-between">
+<div class="d-flex justify-content-between dark-theme container">
 <h3>Index</h3>
     <a asp-action="Create"><button class="btn btn-success">Add Item</button></a>
 </div>
 
-<table class="table">
+<table class="table border-2 border table-dark container dark-theme my-5">
 
     <thead> 
         <tr> 
             <th> Name</th>
             <th> Price</th>
+            <th> Serial Number</th>
+            <th> Category </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -22,7 +25,9 @@
             <tr>
                 <td>@item.Name</td>
                 <td>$ @item.Price.ToString("N2")</td>
-                <td>
+                <td>@item.SerailNumber?.Name</td>
+                <td>@item.Category?.Name</td>
+                <td class="flex justify-content-between">
                    <a asp-action="Edit" asp-route-id=@item.Id>Edit</a> 
                    <a asp-action="Delete" asp-route-id=@item.Id>Delete</a>
                 </td>

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -10,9 +11,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(Web1Context))]
-    partial class Web1ContextModelSnapshot : ModelSnapshot
+    [Migration("20250401054934_one")]
+    partial class one
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,40 +24,6 @@ namespace WebApplication1.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("WebApplication1.Models.Category", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Electronics"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Books"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Food"
-                        });
-                });
-
             modelBuilder.Entity("WebApplication1.Models.Items", b =>
                 {
                     b.Property<int>("Id")
@@ -62,9 +31,6 @@ namespace WebApplication1.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -78,18 +44,7 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.ToTable("Items");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 7,
-                            Name = "Hehe Product",
-                            Price = 200.0,
-                            SerialNumberId = 3
-                        });
                 });
 
             modelBuilder.Entity("WebApplication1.Models.SerialNumber", b =>
@@ -114,23 +69,6 @@ namespace WebApplication1.Migrations
                         .HasFilter("[ItemId] IS NOT NULL");
 
                     b.ToTable("SerialNumbers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 3,
-                            ItemId = 7,
-                            Name = "heh710"
-                        });
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.Items", b =>
-                {
-                    b.HasOne("WebApplication1.Models.Category", "Category")
-                        .WithMany("Items")
-                        .HasForeignKey("CategoryId");
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.SerialNumber", b =>
@@ -140,11 +78,6 @@ namespace WebApplication1.Migrations
                         .HasForeignKey("WebApplication1.Models.SerialNumber", "ItemId");
 
                     b.Navigation("Item");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.Category", b =>
-                {
-                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Items", b =>

@@ -17,7 +17,6 @@ C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\WebApplicatio
 C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\scopedcss\bundle\WebApplication1.styles.css
 C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\scopedcss\projectbundle\WebApplication1.bundle.scp.css
-C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\compressed\sfr9826l73-b9sayid5wm.gz
 C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\compressed\ixpe6lrf0h-61n19gt1b8.gz
 C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\compressed\19w17uh790-bqjiyaj88i.gz
 C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\compressed\nxr65fp6ju-c2jlpeoesf.gz
@@ -231,3 +230,4 @@ C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\WebApplicatio
 C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\WebApplication1.sourcelink.json
 C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\WebAppli.7D14BD69.Up2Date
 C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\compressed\9cuoy2kfs0-ehaz4d7yci.gz
+C:\Users\Coditas-Admin\Desktop\C#\WebApplication1\obj\Debug\net9.0\compressed\sfr9826l73-pxlgan74cr.gz

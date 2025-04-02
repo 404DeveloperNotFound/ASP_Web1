@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
@@ -15,17 +16,20 @@ namespace WebApplication1.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var items = await _context.Items.ToListAsync();
+            var items = await _context.Items.Include(s => s.SerailNumber)
+                                            .Include(s => s.Category)
+                                            .ToListAsync();
             return View(items);
         }
 
         public IActionResult Create()
         {
+            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id","Name","Price")] Items item)
+        public async Task<IActionResult> Create([Bind("Id","Name","Price", "CategoryId")] Items item)
         {
             if (!ModelState.IsValid) // Check for validation errors
             {
@@ -38,12 +42,13 @@ namespace WebApplication1.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
+            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
             var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
             return View(item);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price")] Items item)
+        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price","CategoryId")] Items item)
         {
             if (ModelState.IsValid)
             {

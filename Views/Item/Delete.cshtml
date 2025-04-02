@@ -3,6 +3,8 @@
     ViewData["Title"] = "Edit";
 }
 
+<div class="container">
+
 <h3>Are you sure you want to delete this item.</h3>
 <p>@Model.Name</p>
 <p>$ @Model.Price</p>
@@ -10,3 +12,5 @@
     <input type="hidden" asp-for="Id"/>
     <input class="btn btn-danger mt-3" type="submit" value="Delete"/>
 </form>
+
+</div>

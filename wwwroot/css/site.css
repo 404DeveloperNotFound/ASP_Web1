@@ -1,7 +1,11 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
+.dark-nav {
+    background: #262626;
+    color: white;
+}
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -16,9 +20,12 @@ html {
   position: relative;
   min-height: 100%;
 }
-
+.dark-theme, .dark-theme body {
+    background-color: #2D2D2D !important;
+    color: white !important;
+}
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {

@@ -4,7 +4,7 @@
 }
 
 <div class="d-flex justify-content-between dark-theme container">
-<h3>Index</h3>
+    <h3>Index</h3>
     <a asp-action="Create"><button class="btn btn-success">Add Item</button></a>
 </div>
 
@@ -16,6 +16,7 @@
             <th> Price</th>
             <th> Serial Number</th>
             <th> Category </th>
+            <th> Clients </th>
             <th></th>
         </tr>
     </thead>
@@ -27,6 +28,15 @@
                 <td>$ @item.Price.ToString("N2")</td>
                 <td>@item.SerailNumber?.Name</td>
                 <td>@item.Category?.Name</td>
+                <td>
+                    @if(item.ItemClients != null){
+                        int cnt = 0;
+                        @foreach(var i in item.ItemClients){
+                            <span>@i.Client.Name@(cnt != item.ItemClients.Count-1 ? ", " : "")</span>
+                            cnt++;
+                        }
+                    }
+                </td>
                 <td class="flex justify-content-between">
                    <a asp-action="Edit" asp-route-id=@item.Id>Edit</a> 
                    <a asp-action="Delete" asp-route-id=@item.Id>Delete</a>

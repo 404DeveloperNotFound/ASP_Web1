@@ -17,7 +17,9 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> Index()
         {
             var items = await _context.Items.Include(s => s.SerailNumber)
-                                            .Include(s => s.Category)
+                                            .Include(c => c.Category)
+                                            .Include(ic => ic.ItemClients)
+                                            .ThenInclude(c => c.Client)
                                             .ToListAsync();
             return View(items);
         }
@@ -67,9 +69,13 @@ namespace WebApplication1.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
-            var item = await _context.Items.FindAsync(id);
+            var item = await _context.Items.Include(s => s.SerailNumber).FirstOrDefaultAsync(i => i.Id == id);
             if(item != null)
             {
+                if (item.SerailNumber != null)
+                {
+                    _context.SerialNumbers.Remove(item.SerailNumber);
+                }
                 _context.Items.Remove(item);
                 await _context.SaveChangesAsync();
             }

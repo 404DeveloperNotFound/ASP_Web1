@@ -10,6 +10,14 @@ namespace WebApplication1.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ItemClient>().HasKey(ic => new
+            {
+                ic.ItemId,
+                ic.ClientId
+            });
+            modelBuilder.Entity<ItemClient>().HasOne(i => i.Item).WithMany(ic => ic.ItemClients).HasForeignKey(i => i.ItemId);
+            modelBuilder.Entity<ItemClient>().HasOne(c => c.Client).WithMany(ic => ic.ItemClients).HasForeignKey(c => c.ClientId);
+
             modelBuilder.Entity<Items>().HasData(
                 new Items { Id = 7, Name = "Hehe Product", Price = 200, SerialNumberId = 3 });
 
@@ -29,5 +37,7 @@ namespace WebApplication1.Data
         public DbSet<Items> Items { get; set; }
         public DbSet<SerialNumber> SerialNumbers { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<ItemClient> ItemClients { get; set; }
     }
 }

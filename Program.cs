@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 
@@ -12,6 +13,11 @@ internal class Program
         builder.Services.AddDbContext<Web1Context>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 
+
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+         .AddEntityFrameworkStores<Web1Context>()  // Use Web1Context here
+         .AddDefaultTokenProviders();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -23,17 +29,19 @@ internal class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseStaticFiles();
+        
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
-
+        
         app.MapStaticAssets();
 
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}")
             .WithStaticAssets();
-
 
         app.Run();
     }

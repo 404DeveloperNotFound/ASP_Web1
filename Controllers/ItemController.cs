@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
 namespace WebApplication1.Controllers
 {
+    [Authorize]
     public class ItemController : Controller
     {
         private readonly Web1Context _context;
@@ -18,12 +20,12 @@ namespace WebApplication1.Controllers
         {
             var items = await _context.Items.Include(s => s.SerailNumber)
                                             .Include(c => c.Category)
-                                            .Include(ic => ic.ItemClients)
-                                            .ThenInclude(c => c.Client)
+                                            .Include(c => c.Clients)
                                             .ToListAsync();
             return View(items);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
@@ -31,6 +33,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Id","Name","Price", "CategoryId")] Items item)
         {
             if (!ModelState.IsValid) // Check for validation errors
@@ -42,14 +45,17 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
             var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
+
             return View(item);
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price","CategoryId")] Items item)
         {
             if (ModelState.IsValid)
@@ -61,12 +67,14 @@ namespace WebApplication1.Controllers
             return View(item);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var item = await _context.Items.FindAsync(id);
             return View(item);
         }
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
             var item = await _context.Items.Include(s => s.SerailNumber).FirstOrDefaultAsync(i => i.Id == id);

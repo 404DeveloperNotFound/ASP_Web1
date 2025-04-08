@@ -1,48 +1,54 @@
 ﻿@model List<WebApplication1.Models.Items>
 @{
-    ViewData["TItle"] = "Index";
+    ViewData["Title"] = "Index";  // Fixed typo: "TItle" to "Title"
 }
 
 <div class="d-flex justify-content-between dark-theme container">
     <h3>Index</h3>
-    <a asp-action="Create"><button class="btn btn-success">Add Item</button></a>
+    @if (User.IsInRole("Admin"))  // Show "Add Item" button only to Admins
+    {
+        <a asp-action="Create"><button class="btn btn-success">Add Item</button></a>
+    }
 </div>
 
 <table class="table border-2 border table-dark container dark-theme my-5">
-
-    <thead> 
-        <tr> 
-            <th> Name</th>
-            <th> Price</th>
-            <th> Serial Number</th>
-            <th> Category </th>
-            <th> Clients </th>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Serial Number</th>
+            <th>Category</th>
+            <th>Clients</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach(var item in Model)
+        @foreach (var item in Model)
         {
             <tr>
                 <td>@item.Name</td>
                 <td>$ @item.Price.ToString("N2")</td>
-                <td>@item.SerailNumber?.Name</td>
+                <td>@item?.SerailNumber?.Name</td> 
                 <td>@item.Category?.Name</td>
                 <td>
-                    @if(item.ItemClients != null){
+                    @if (item.Clients != null)
+                    {
                         int cnt = 0;
-                        @foreach(var i in item.ItemClients){
-                            <span>@i.Client.Name@(cnt != item.ItemClients.Count-1 ? ", " : "")</span>
+                        @foreach (var i in item.Clients)
+                        {
+                            <span>@i.Name@(cnt != item.Clients.Count - 1 ? ", " : "")</span>
                             cnt++;
                         }
                     }
                 </td>
                 <td class="flex justify-content-between">
-                   <a asp-action="Edit" asp-route-id=@item.Id>Edit</a> 
-                   <a asp-action="Delete" asp-route-id=@item.Id>Delete</a>
+                    @if (User.IsInRole("Admin"))  // Show "Edit" and "Delete" links only to Admins
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
                 </td>
             </tr>
         }
     </tbody>
-
 </table>

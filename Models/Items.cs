@@ -2,7 +2,16 @@
 
 namespace WebApplication1.Models
 {
-    public class Items
+    public interface IProduct 
+    {
+        int Id { get; set; }
+        string Name { get; set; }
+        double Price { get; set; }
+        void DisplayItemInfo();
+    
+    }
+
+    public class Items : IProduct
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
@@ -13,6 +22,14 @@ namespace WebApplication1.Models
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }
 
-        public List<ItemClient>? ItemClients { get; set; }
+        public List<Client>? Clients { get; set; }
+
+        //public List<ItemClient>? ItemClients { get; set; }
+
+
+        public void DisplayItemInfo()
+        {
+            Console.WriteLine($"Item : {this.Id} - {this.Name} - ${this.Price}");
+        } 
     }
 }

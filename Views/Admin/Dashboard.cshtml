@@ -5,9 +5,21 @@
 }
 
 <div class="container my-5">
-    <div class="btn-group mb-4" role="group">
-        <a asp-controller="Admin" asp-action="ManageItems" class="btn btn-outline-primary @(viewType == "Items" ? "active" : "")">Items</a>
-        <a asp-controller="Admin" asp-action="ManageUsers" class="btn btn-outline-primary @(viewType == "Users" ? "active" : "")">Users</a>
+    <div class="d-flex justify-content-between"> 
+        <div class="btn-group mb-4" role="group">
+            <a asp-controller="Admin" asp-action="ManageItems" class="btn btn-outline-primary @(viewType == "Items" ? "active" : "")">Items</a>
+            <a asp-controller="Admin" asp-action="ManageUsers" class="btn btn-outline-primary @(viewType == "Users" ? "active" : "")">Users</a>
+        </div>
+        <div class="">
+            @if(viewType == "Items")
+            {   
+                <a asp-controller="Item" asp-action="Create" class="btn btn-success">Add Item +</a>
+            }
+            else
+            {
+                <a asp-controller="Admin" asp-action="AddUser" class="btn btn-success">Add User +</a>
+            }
+        </div>
     </div>
 
     @if (viewType == "Items")
@@ -31,8 +43,8 @@
                         <td>@item.SerailNumber?.Name</td>
                         <td>@item.Category?.Name</td>
                         <td>
-                            <a asp-controller="Items" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Edit</a>
-                            <a asp-controller="Items" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                            <a asp-controller="Item" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Edit</a>
+                            <a asp-controller="Item" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
                         </td>
                     </tr>
                 }
@@ -58,8 +70,8 @@
                         <td>@user.Email</td>
                         <td>@user.Role</td>
                         <td>
-                            <a asp-controller="Account" asp-action="PromoteToAdmin" asp-route-id="@user.Id" class="btn btn-sm btn-success">Promote</a>
-                            <a asp-controller="Account" asp-action="Blacklist" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Blacklist</a>
+                            <a asp-controller="Admin" asp-action="PromoteToAdmin" asp-route-id="@user.Id" class="btn btn-sm btn-success">Promote</a>
+                            <a asp-controller="Admin" asp-action="Blacklist" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Blacklist</a>
                         </td>
                     </tr>
                 }

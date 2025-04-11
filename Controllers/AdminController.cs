@@ -38,5 +38,25 @@ namespace WebApplication1.Controllers
             ViewBag.ViewType = "Users";
             return View("Dashboard", users);
         }
+
+        public async Task<IActionResult> PromoteToAdmin(int id)
+        {
+            var user = await _context.Clients.FindAsync(id);
+            if (user == null) return NotFound();
+
+            user.Role = "Admin";
+            await _context.SaveChangesAsync();
+            return RedirectToAction("ManageUsers");
+        }
+
+        public async Task<IActionResult> Blacklist(int id)
+        {
+            var user = await _context.Clients.FindAsync(id);
+            if (user == null) return NotFound();
+
+            user.IsBlocked = true;
+            await _context.SaveChangesAsync();
+            return RedirectToAction("ManageUsers");
+        }
     }
 }

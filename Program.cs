@@ -12,8 +12,9 @@ internal class Program
         // Add services to the container.
         builder.Services.AddControllersWithViews();
         builder.Services.AddDbContext<Web1Context>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
-
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"),
+        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()
+        ));
 
         // for auth using EF Identity
         //builder.Services.AddIdentity<IdentityUser, IdentityRole>()

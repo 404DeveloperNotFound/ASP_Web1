@@ -12,7 +12,7 @@ namespace WebApplication1.Models
         public string Email { get; set; }
         [Required]
         public string PasswordHash { get; set; }
-
+        public bool IsBlocked { get; set; } = false;
         [Required]
         public string Role { get; set; } // "Admin" or "Client"
     }

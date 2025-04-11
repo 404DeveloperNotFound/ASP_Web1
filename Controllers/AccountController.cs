@@ -1,23 +1,21 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using WebApplication1.Data;
 
 namespace WebApplication1.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-
-        public AccountController(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
-            RoleManager<IdentityRole> roleManager)
+        private readonly Web1Context _context;
+        public AccountController(Web1Context context)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _roleManager = roleManager;
+            _context = context;
         }
 
         // GET: /Account/Register
@@ -31,38 +29,66 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(Register model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // 1) Check passwords match
+            if (model.Password != model.ConfirmPassword)
             {
-                var email = model.Email;
-                var namePart = email.Split('@')[0]; 
-
-                // Capitalize the first letter
-                var username = char.ToUpper(namePart[0]) + namePart.Substring(1);
-
-                var user = new IdentityUser { UserName = username, Email = model.Email };
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (result.Succeeded)
-                {
-                    // Ensure roles exist
-                    if (!await _roleManager.RoleExistsAsync("Admin"))
-                        await _roleManager.CreateAsync(new IdentityRole("Admin"));
-                    if (!await _roleManager.RoleExistsAsync("Client"))
-                        await _roleManager.CreateAsync(new IdentityRole("Client"));
-
-                    // Assign role to user
-                    await _userManager.AddToRoleAsync(user, model.Role);
-
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
+                ModelState.AddModelError(string.Empty, "Passwords do not match.");
+                return View(model);
             }
-            return View(model);
+
+            // 2) Check email/username uniqueness
+            if (_context.Clients.Any(u => u.Email == model.Email))
+            {
+                ModelState.AddModelError(string.Empty, "Email is already taken.");
+                return View(model);
+            }
+            if (_context.Clients.Any(u => u.Username == model.Username))
+            {
+                ModelState.AddModelError(string.Empty, "Username is already taken.");
+                return View(model);
+            }
+
+            // 3) Hash the password with BCrypt
+            var hashed = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
+            // 4) Create your user entity
+            var user = new Client
+            {
+                Username = model.Username,
+                Email = model.Email,
+                PasswordHash = hashed,
+                Role = model.Role ?? "Client"  // e.g. "Admin" or "Client"
+            };
+
+            _context.Clients.Add(user);
+            await _context.SaveChangesAsync();
+
+            // 5) Build the ClaimsPrincipal for cookie auth
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name,           user.Username),
+                new Claim(ClaimTypes.Email,          user.Email),
+                new Claim(ClaimTypes.Role,           user.Role)
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            // 6) Sign in
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = false,      // set true if you want "Remember me"
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+                });
+
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: /Account/Login
@@ -76,25 +102,56 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(Login model)
         {
-            if (ModelState.IsValid)
-            {
-                var result = await _signInManager.PasswordSignInAsync(
-                    model.Email, model.Password, model.RememberMe, false);
+            if (!ModelState.IsValid)
+                return View(model);
 
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Index", "Home");
-                }
+            // 1) Look up user by email
+            var user = await _context.Clients
+                                     .SingleOrDefaultAsync(u => u.Email == model.Email);
+            if (user == null)
+            {
                 ModelState.AddModelError("", "Invalid login attempt.");
+                return View(model);
             }
-            return View(model);
+
+            // 2) Verify password with BCrypt
+            if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
+            {
+                ModelState.AddModelError("", "Invalid login attempt.");
+                return View(model);
+            }
+
+            // 3) Create claims and sign in
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name,           user.Username),
+                new Claim(ClaimTypes.Email,          user.Email),
+                new Claim(ClaimTypes.Role,           user.Role)
+            };
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = model.RememberMe,
+                    // adjust expiration as you like:
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+                });
+
+            return RedirectToAction("Index", "Home");
         }
 
         // POST: /Account/Logout
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            // Clear the cookie
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
     }

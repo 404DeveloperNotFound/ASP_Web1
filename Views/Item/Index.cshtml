@@ -36,7 +36,7 @@
                         int cnt = 0;
                         @foreach (var i in item.Clients)
                         {
-                            <span>@i.Name@(cnt != item.Clients.Count - 1 ? ", " : "")</span>
+                            <span>@i.Username@(cnt != item.Clients.Count - 1 ? ", " : "")</span>
                             cnt++;
                         }
                     }

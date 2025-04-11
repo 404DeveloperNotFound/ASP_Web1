@@ -5,7 +5,7 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Data
 {
-    public class Web1Context : IdentityDbContext<IdentityUser>  // Changed to inherit from IdentityDbContext
+    public class Web1Context : DbContext // Changed to inherit from IdentityDbContext
     {
         public Web1Context(DbContextOptions<Web1Context> options) : base(options)
         {

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
@@ -14,9 +15,22 @@ internal class Program
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-         .AddEntityFrameworkStores<Web1Context>()  // Use Web1Context here
-         .AddDefaultTokenProviders();
+        // for auth using EF Identity
+        //builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+        // .AddEntityFrameworkStores<Web1Context>()  // Use Web1Context here
+        // .AddDefaultTokenProviders();
+
+
+        //builder.Services.AddScoped<UserService>();
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.LogoutPath = "/Account/Logout";
+                options.AccessDeniedPath = "/Home/AccessDenied";
+            });
+
+        builder.Services.AddControllersWithViews();
 
         var app = builder.Build();
 

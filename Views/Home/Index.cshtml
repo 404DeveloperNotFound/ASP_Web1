@@ -1,20 +1,51 @@
-﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+﻿@using System.Security.Claims
 @{
     ViewData["Title"] = "Home Page";
 }
 
-
-<div class="text-center">
+<div class="text-center mt-5">
     @if (User.Identity.IsAuthenticated)
     {
-        <h2>Welcome, @Model.UserName!</h2>
-        <h3>Email: @Model.Email</h3>
-        @* <p>User ID: @Model.Id</p> *@
-        <a asp-controller="item"  class="text-white text-decoration-none font-monospace my-5 underline-hover "><h3>Go to Items Page</h3></a>
+        <h2>Welcome, @User.Identity.Name!</h2>
+        <h4>Email: @User.FindFirst(ClaimTypes.Email)?.Value</h4>
+        <h5>Role: @User.FindFirst(ClaimTypes.Role)?.Value</h5>
+
+        @* Role‑specific navigation *@
+        @if (User.IsInRole("Admin"))
+        {
+            @* <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-outline-primary my-3"> *@
+            @*     Go to Admin Dashboard *@
+            @* </a> *@
+            <a asp-controller="Item" asp-action="Index" class="btn btn-outline-primary my-3">
+                Go to Items Page
+            </a>
+        }
+        else if (User.IsInRole("Client"))
+        {
+            <a asp-controller="Item" asp-action="Index" class="btn btn-outline-success my-3">
+                Go to Items Page
+            </a>
+        }
+
+        @* Logout form *@
+        <form asp-controller="Account" asp-action="Logout" method="post" class="mt-4">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger">
+                Logout
+            </button>
+        </form>
     }
     else
     {
-        <h1 class="display-4">Welcome</h1>
-        <h3 class="d-flex justify-content-center align-items-center gap-2">Login to see items  <button class="btn btn-success px-5 py-2 rounded-4"><a class="nav-link text-white" asp-controller="Account" asp-action="Login">Login</a></button></h3>
+        <h1 class="display-4">Welcome to Worldly Desires!</h1>
+        <p class="lead">Please login or register to continue.</p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a asp-controller="Account" asp-action="Login" class="btn btn-success px-4">
+                Login
+            </a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-primary px-4">
+                Register
+            </a>
+        </div>
     }
 </div>

@@ -11,8 +11,8 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(Web1Context))]
-    [Migration("20250401105925_many_to_one")]
-    partial class many_to_one
+    [Migration("20250411063228_Cookie_auth")]
+    partial class Cookie_auth
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,21 @@ namespace WebApplication1.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ClientItems", b =>
+                {
+                    b.Property<int>("ClientsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ItemsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClientsId", "ItemsId");
+
+                    b.HasIndex("ItemsId");
+
+                    b.ToTable("ClientItems");
+                });
 
             modelBuilder.Entity("WebApplication1.Models.Category", b =>
                 {
@@ -56,6 +71,35 @@ namespace WebApplication1.Migrations
                             Id = 3,
                             Name = "Food"
                         });
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Client", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Items", b =>
@@ -125,6 +169,21 @@ namespace WebApplication1.Migrations
                             ItemId = 7,
                             Name = "heh710"
                         });
+                });
+
+            modelBuilder.Entity("ClientItems", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Client", null)
+                        .WithMany()
+                        .HasForeignKey("ClientsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Items", null)
+                        .WithMany()
+                        .HasForeignKey("ItemsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Items", b =>

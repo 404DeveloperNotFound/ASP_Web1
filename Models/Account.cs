@@ -21,6 +21,8 @@ namespace WebApplication1.Models
         [EmailAddress]
         public string Email { get; set; }
 
+        public string Username { get; set; }
+
         [Required]
         [StringLength(100, MinimumLength = 6)]
         [DataType(DataType.Password)]
@@ -32,6 +34,6 @@ namespace WebApplication1.Models
         public string ConfirmPassword { get; set; }
 
         [Required]
-        public string Role { get; set; }  // To assign Admin or Client
+        public string Role { get; set; } = "Client";  // To assign Admin or Client
     }
 }

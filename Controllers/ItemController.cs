@@ -67,6 +67,18 @@ namespace WebApplication1.Controllers
             return View(item);
         }
 
+        [Authorize]
+        public async Task<IActionResult> Details(int id)
+        {
+            var item = await _context.Items.Include(i => i.Category).Include(i => i.SerailNumber).Include(i => i.Clients).FirstOrDefaultAsync(i => i.Id == id);
+
+            if(item == null)
+            {
+                return NotFound();
+            }
+            return View(item);
+        }
+
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {

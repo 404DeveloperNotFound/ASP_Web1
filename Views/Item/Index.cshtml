@@ -1,54 +1,83 @@
 ﻿@model List<WebApplication1.Models.Items>
 @{
-    ViewData["Title"] = "Index";  // Fixed typo: "TItle" to "Title"
+    ViewData["Title"] = "Index";
 }
 
-<div class="d-flex justify-content-between dark-theme container">
-    <h3>Index</h3>
-    @if (User.IsInRole("Admin"))  // Show "Add Item" button only to Admins
+<div class="d-flex justify-content-between container dark-theme my-4">
+    <h3>Items</h3>
+    @if (User.IsInRole("Admin"))
     {
         <a asp-action="Create"><button class="btn btn-success">Add Item</button></a>
     }
 </div>
 
-<table class="table border-2 border table-dark container dark-theme my-5">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Serial Number</th>
-            <th>Category</th>
-            <th>Clients</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="container">
+    <div class="d-flex flex-wrap gap-4 justify-content-start">
         @foreach (var item in Model)
         {
-            <tr>
-                <td>@item.Name</td>
-                <td>$ @item.Price.ToString("N2")</td>
-                <td>@item?.SerailNumber?.Name</td> 
-                <td>@item.Category?.Name</td>
-                <td>
-                    @if (item.Clients != null)
-                    {
-                        int cnt = 0;
-                        @foreach (var i in item.Clients)
+            <div class="card bg-dark text-white hover-card d-flex flex-column" style="width: 20rem; height:15rem">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title  hover-underline"><a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-white">@item.Name</a></h5>
+                    <h6 class="card-subtitle mb-2 text-muted">$ @item.Price.ToString("N2")</h6>
+                    <p class="card-text">
+                        <strong>Serial:</strong> @item?.SerailNumber?.Name <br />
+                        <strong>Category:</strong> @item?.Category?.Name <br />
+                        <strong>Clients:</strong>
+                        @if (item.Clients != null && item.Clients.Count > 0)
                         {
-                            <span>@i.Username@(cnt != item.Clients.Count - 1 ? ", " : "")</span>
-                            cnt++;
+                            int cnt = 0;
+                            foreach (var i in item.Clients)
+                            {
+                                @i.Username
+
+                                @(cnt != item.Clients.Count - 1 ? ", " : "")
+                                cnt++;
+                            }
                         }
-                    }
-                </td>
-                <td class="flex justify-content-between">
-                    @if (User.IsInRole("Admin"))  // Show "Edit" and "Delete" links only to Admins
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    }
-                </td>
-            </tr>
+                        else
+                        {
+                            <span>None</span>
+                        }
+                    </p>
+                    <div class="mt-auto"> 
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="d-flex justify-content-between">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary px-3">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                            </div>
+                        }
+                        else
+                        {
+                            // buttons yet to do 
+                            <div class="d-flex justify-content-between">
+                                <a asp-route-id="@item.Id" class="btn btn-sm btn-warning px-3">Buy</a>
+                                <a asp-route-id="@item.Id" class="btn btn-sm btn-primary">Add to Cart</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+</div>
+<style>
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* subtle base shadow */
+    }
+
+    .hover-card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); /* glow on hover */
+        cursor: pointer;
+    }
+
+    .hover-underline {
+        transition: text-decoration 0.2s ease;
+    }
+
+    .hover-underline:hover {
+        text-decoration: underline;
+    }
+</style>

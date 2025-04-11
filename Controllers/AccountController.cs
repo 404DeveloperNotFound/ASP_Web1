@@ -32,14 +32,14 @@ namespace WebApplication1.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // 1) Check passwords match
+            // passwords check
             if (model.Password != model.ConfirmPassword)
             {
                 ModelState.AddModelError(string.Empty, "Passwords do not match.");
                 return View(model);
             }
 
-            // 2) Check email/username uniqueness
+            // email n username uniqueness
             if (_context.Clients.Any(u => u.Email == model.Email))
             {
                 ModelState.AddModelError(string.Empty, "Email is already taken.");
@@ -51,16 +51,16 @@ namespace WebApplication1.Controllers
                 return View(model);
             }
 
-            // 3) Hash the password with BCrypt
+            // Password hashing 
             var hashed = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
-            // 4) Create your user entity
+            // Create user entity
             var user = new Client
             {
                 Username = model.Username,
                 Email = model.Email,
                 PasswordHash = hashed,
-                Role = model.Role ?? "Client"  // e.g. "Admin" or "Client"
+                Role = model.Role ?? "Client" 
             };
 
             _context.Clients.Add(user);
@@ -105,23 +105,24 @@ namespace WebApplication1.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // 1) Look up user by email
+            // Look up user by email
             var user = await _context.Clients
                                      .SingleOrDefaultAsync(u => u.Email == model.Email);
+            // user doesn't exist 
             if (user == null)
             {
                 ModelState.AddModelError("", "Invalid login attempt.");
                 return View(model);
             }
 
-            // 2) Verify password with BCrypt
+            // Verify password
             if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
             {
                 ModelState.AddModelError("", "Invalid login attempt.");
                 return View(model);
             }
 
-            // 3) Create claims and sign in
+            // Creating claims and sign in
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -138,7 +139,6 @@ namespace WebApplication1.Controllers
                 new AuthenticationProperties
                 {
                     IsPersistent = model.RememberMe,
-                    // adjust expiration as you like:
                     ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
                 });
 

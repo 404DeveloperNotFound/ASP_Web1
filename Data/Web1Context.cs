@@ -27,6 +27,10 @@ namespace WebApplication1.Data
                 new Category { Id = 3, Name = "Food" }
             );
 
+            modelBuilder.Entity<Client>().HasIndex(c => c.Email).IsUnique();
+
+            modelBuilder.Entity<Client>().HasIndex(c => c.Username).IsUnique();
+
             // Required: Call the base OnModelCreating for Identity configuration
             base.OnModelCreating(modelBuilder);
         }

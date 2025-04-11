@@ -13,12 +13,12 @@
         @* Role‑specific navigation *@
         @if (User.IsInRole("Admin"))
         {
-            @* <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-outline-primary my-3"> *@
-            @*     Go to Admin Dashboard *@
+             <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-primary my-3"> 
+                 Go to Admin Dashboard 
+            </a> 
+            @* <a asp-controller="Item" asp-action="Index" class="btn btn-outline-primary my-3"> *@
+            @*     Go to Items Page *@
             @* </a> *@
-            <a asp-controller="Item" asp-action="Index" class="btn btn-outline-primary my-3">
-                Go to Items Page
-            </a>
         }
         else if (User.IsInRole("Client"))
         {

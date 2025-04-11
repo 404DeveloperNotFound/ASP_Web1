@@ -1,0 +1,50 @@
+﻿@model WebApplication1.Models.Items
+
+@{
+    ViewData["Title"] = "Item Details";
+}
+
+<div class="container my-5">
+    <div class="card bg-dark text-white p-4 shadow-lg">
+        <div class="card-body">
+            <h2 class="card-title">@Model.Name</h2>
+            <h4 class="text-info mb-3">$ @Model.Price.ToString("N2")</h4>
+
+            <p>
+                <strong>Serial Number:</strong> @Model?.SerailNumber?.Name <br />
+                <strong>Category:</strong> @Model?.Category?.Name <br />
+                <strong>Clients:</strong>
+                @if (Model.Clients != null && Model.Clients.Count > 0)
+                {
+                    int cnt = 0;
+                    foreach (var c in Model.Clients)
+                    {
+                        @c.Username
+
+                        @(cnt != Model.Clients.Count - 1 ? ", " : "")
+                        cnt++;
+                    }
+                }
+                else
+                {
+                    <span>None</span>
+                }
+            </p>
+
+            <div class="mt-4">
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+                }
+                else
+                {
+                    <a asp-route-id="@Model.Id" class="btn btn-warning">Buy Now</a>
+                    <a asp-route-id="@Model.Id" class="btn btn-primary">Add to Cart</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

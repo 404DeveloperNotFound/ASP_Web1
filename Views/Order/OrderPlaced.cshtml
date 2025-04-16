@@ -1,0 +1,38 @@
+﻿@model WebApplication1.Models.Order
+
+@{
+    ViewData["Title"] = "Order Placed";
+}
+
+<div class="container"> 
+<h2>Order Successfully Placed!</h2>
+
+<p><strong>Order ID:</strong> @Model.Id</p>
+<p><strong>Order Date:</strong> @Model.OrderDate.ToString("g")</p>
+<p><strong>Status:</strong> @Model.Status</p>
+
+<table class="table table-dark mt-4">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price (Each)</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Item.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price.ToString("C")</td>
+                <td>@(item.Price * item.Quantity).ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/Order/MyOrders" class="btn btn-outline-secondary">Go to My Orders</a>
+<a href="/Item/Index" class="btn btn-outline-primary">Shop More</a>
+</div>

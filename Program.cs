@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
+using WebApplication1.Middlewares;
 
 internal class Program
 {
@@ -9,7 +10,6 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
         builder.Services.AddControllersWithViews();
         builder.Services.AddDbContext<Web1Context>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"),
@@ -31,11 +31,18 @@ internal class Program
                 options.AccessDeniedPath = "/Home/AccessDenied";
             });
 
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews().AddNewtonsoftJson();
+        builder.Services.AddDistributedMemoryCache(); // Enables in-memory storage for sessions
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30); // optional timeout
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+        });
+
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Home/Error");
@@ -49,6 +56,8 @@ internal class Program
         app.UseRouting();
 
         app.UseAuthentication();
+        app.UseSession();
+        app.UseMiddleware<BlacklistMiddleware>();
         app.UseAuthorization();
         
         app.MapStaticAssets();

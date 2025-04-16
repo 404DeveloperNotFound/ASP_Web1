@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Payment";
+}
+
+<h2>Payment Page</h2>
+
+<p>This is a dummy payment screen. You can simulate payment here.</p>
+
+<form asp-controller="Order" asp-action="ConfirmPayment" method="post">
+    <button type="submit" class="btn btn-success">Confirm Payment</button>
+</form>

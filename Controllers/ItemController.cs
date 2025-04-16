@@ -18,8 +18,7 @@ namespace WebApplication1.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var items = await _context.Items.Include(s => s.SerailNumber)
-                                            .Include(c => c.Category)
+            var items = await _context.Items.Include(c => c.Category)
                                             .Include(c => c.Clients)
                                             .ToListAsync();
             return View(items);
@@ -34,15 +33,16 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id","Name","Price", "CategoryId")] Items item)
+        public async Task<IActionResult> Create([Bind("Id","Name","Price", "CategoryId","SerialNumber")] Items item)
         {
-            if (!ModelState.IsValid) // Check for validation errors
+            if (!ModelState.IsValid)
             {
                 return View(item); 
             }
             _context.Add(item);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+
+            return RedirectToAction("Index", "Admin");
         }
 
         [Authorize(Roles = "Admin")]
@@ -56,13 +56,22 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price","CategoryId")] Items item)
+        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price","CategoryId","SerialNumber")] Items item)
         {
             if (ModelState.IsValid)
             {
-                _context.Update(item);
+                var existingItem = await _context.Items.FindAsync(id);
+                if (existingItem == null)
+                {
+                    return NotFound();
+                }
+
+                existingItem.Name = item.Name;
+                existingItem.Price = item.Price;
+                existingItem.CategoryId = item.CategoryId;
+
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Admin");
             }
             return View(item);
         }
@@ -70,7 +79,7 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> Details(int id)
         {
-            var item = await _context.Items.Include(i => i.Category).Include(i => i.SerailNumber).Include(i => i.Clients).FirstOrDefaultAsync(i => i.Id == id);
+            var item = await _context.Items.Include(i => i.Category).Include(i => i.Clients).FirstOrDefaultAsync(i => i.Id == id);
 
             if(item == null)
             {
@@ -89,18 +98,13 @@ namespace WebApplication1.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
-            var item = await _context.Items.Include(s => s.SerailNumber).FirstOrDefaultAsync(i => i.Id == id);
+            var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == id);
             if(item != null)
             {
-                if (item.SerailNumber != null)
-                {
-                    _context.SerialNumbers.Remove(item.SerailNumber);
-                }
                 _context.Items.Remove(item);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Admin");
         }
-
     }
 }

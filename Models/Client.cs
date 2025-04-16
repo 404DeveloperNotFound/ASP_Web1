@@ -18,7 +18,8 @@ namespace WebApplication1.Models
     }
     public class Client : User
     {
-        public List<Items>? Items { get; set; }
+        public List<Order>? Orders { get; set; }
+        //public List<Items>? Items { get; set; }
 
         //public List<ItemClient>? ItemClients { get; set; }
     }

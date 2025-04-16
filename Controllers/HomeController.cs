@@ -1,6 +1,7 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Models;   // for ErrorViewModel
+using WebApplication1.Models;   
 
 namespace WebApplication1.Controllers
 {
@@ -16,7 +17,6 @@ namespace WebApplication1.Controllers
         // GET: /Home/Index
         public IActionResult Index()
         {
-            // everything the view needs (Name, Email, Role) comes from User.Claims
             return View();
         }
 
@@ -33,6 +33,12 @@ namespace WebApplication1.Controllers
             {
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
+        }
+
+        [AllowAnonymous]
+        public IActionResult Blacklisted()
+        {
+            return View();
         }
     }
 }

@@ -20,7 +20,7 @@
                     <h5 class="card-title  hover-underline"><a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-white">@item.Name</a></h5>
                     <h6 class="card-subtitle mb-2 text-muted">$ @item.Price.ToString("N2")</h6>
                     <p class="card-text">
-                        <strong>Serial:</strong> @item?.SerailNumber?.Name <br />
+                        <strong>Serial:</strong> @item?.SerialNumber <br />
                         <strong>Category:</strong> @item?.Category?.Name <br />
                         <strong>Clients:</strong>
                         @if (item.Clients != null && item.Clients.Count > 0)
@@ -39,7 +39,7 @@
                             <span>None</span>
                         }
                     </p>
-                    <div class="mt-auto"> 
+                    <div class="mt-auto">
                         @if (User.IsInRole("Admin"))
                         {
                             <div class="d-flex justify-content-between">
@@ -49,10 +49,9 @@
                         }
                         else
                         {
-                            // buttons yet to do 
                             <div class="d-flex justify-content-between">
-                                <a asp-route-id="@item.Id" class="btn btn-sm btn-warning px-3">Buy</a>
-                                <a asp-route-id="@item.Id" class="btn btn-sm btn-primary">Add to Cart</a>
+                                <a asp-controller="Cart" asp-action="BuyNow" asp-route-id="@item.Id" class="btn btn-sm btn-warning px-3">Buy</a>
+                                <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Add to Cart</a>
                             </div>
                         }
                     </div>
@@ -64,12 +63,12 @@
 <style>
     .hover-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* subtle base shadow */
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     }
 
     .hover-card:hover {
         transform: scale(1.03);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); /* glow on hover */
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); 
         cursor: pointer;
     }
 

@@ -17,7 +17,7 @@
             }
             else
             {
-                <a asp-controller="Admin" asp-action="AddUser" class="btn btn-success">Add User +</a>
+                @* <a asp-controller="Admin" asp-action="AddUser" class="btn btn-success">Add User +</a> *@
             }
         </div>
     </div>
@@ -40,7 +40,7 @@
                     <tr>
                         <td>@item.Name</td>
                         <td>$@item.Price.ToString("N2")</td>
-                        <td>@item.SerailNumber?.Name</td>
+                        <td>@item.SerialNumber</td>
                         <td>@item.Category?.Name</td>
                         <td>
                             <a asp-controller="Item" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Edit</a>
@@ -70,8 +70,15 @@
                         <td>@user.Email</td>
                         <td>@user.Role</td>
                         <td>
-                            <a asp-controller="Admin" asp-action="PromoteToAdmin" asp-route-id="@user.Id" class="btn btn-sm btn-success">Promote</a>
-                            <a asp-controller="Admin" asp-action="Blacklist" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Blacklist</a>
+                            <a asp-controller="Admin" asp-action="PromoteToAdmin" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Promote</a>
+                            @if (user.IsBlocked)
+                            {
+                                <a asp-controller="Admin" asp-action="UnBlacklist" asp-route-id="@user.Id" class="btn btn-sm btn-success">UnBlock</a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Admin" asp-action="Blacklist" asp-route-id="@user.Id" class="btn btn-sm btn-danger">Block</a>
+                            }
                         </td>
                     </tr>
                 }

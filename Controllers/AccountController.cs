@@ -32,14 +32,12 @@ namespace WebApplication1.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // passwords check
             if (model.Password != model.ConfirmPassword)
             {
                 ModelState.AddModelError(string.Empty, "Passwords do not match.");
                 return View(model);
             }
 
-            // email n username uniqueness
             if (_context.Clients.Any(u => u.Email == model.Email))
             {
                 ModelState.AddModelError(string.Empty, "Email is already taken.");
@@ -51,10 +49,9 @@ namespace WebApplication1.Controllers
                 return View(model);
             }
 
-            // Password hashing 
             var hashed = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
-            // Create user entity
+            // Create user 
             var user = new Client
             {
                 Username = model.Username,
@@ -66,7 +63,7 @@ namespace WebApplication1.Controllers
             _context.Clients.Add(user);
             await _context.SaveChangesAsync();
 
-            // 5) Build the ClaimsPrincipal for cookie auth
+            // Build the ClaimsPrincipal for cookie auth
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -78,13 +75,13 @@ namespace WebApplication1.Controllers
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
-            // 6) Sign in
+            // Sign in (set cookie)
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal,
                 new AuthenticationProperties
                 {
-                    IsPersistent = false,      // set true if you want "Remember me"
+                    IsPersistent = false, 
                     ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
                 });
 
@@ -105,7 +102,6 @@ namespace WebApplication1.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // Look up user by email
             var user = await _context.Clients
                                      .SingleOrDefaultAsync(u => u.Email == model.Email);
             // user doesn't exist 
@@ -115,14 +111,12 @@ namespace WebApplication1.Controllers
                 return View(model);
             }
 
-            // Verify password
             if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
             {
                 ModelState.AddModelError("", "Invalid login attempt.");
                 return View(model);
             }
 
-            // Creating claims and sign in
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

@@ -10,7 +10,6 @@
         <h4>Email: @User.FindFirst(ClaimTypes.Email)?.Value</h4>
         <h5>Role: @User.FindFirst(ClaimTypes.Role)?.Value</h5>
 
-        @* Role‑specific navigation *@
         @if (User.IsInRole("Admin"))
         {
              <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-primary my-3"> 
@@ -27,7 +26,6 @@
             </a>
         }
 
-        @* Logout form *@
         <form asp-controller="Account" asp-action="Logout" method="post" class="mt-4">
             @Html.AntiForgeryToken()
             <button type="submit" class="btn btn-danger">

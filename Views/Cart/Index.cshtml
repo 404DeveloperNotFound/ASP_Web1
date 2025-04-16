@@ -1,0 +1,58 @@
+﻿@model List<WebApplication1.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Your Cart";
+}
+
+<div class="container">
+    <h2>Your Cart</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <p>Your cart is empty.</p>
+    }
+    else
+    {
+        <table class="table table-dark dark-theme bg-dark text-white">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Item.Name</td>
+                        <td>@item.Item.Price.ToString("C")</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <form method="post" asp-action="UpdateQuantity" asp-controller="Cart">
+                                    <input type="hidden" name="itemId" value="@item.ItemId" />
+                                    <input type="hidden" name="quantity" value="@(item.Quantity - 1)" />
+                                    <button type="submit" class="btn btn-sm btn-outline-light">-</button>
+                                </form>
+
+                                <span class="px-2">@item.Quantity</span>
+
+                                <form method="post" asp-action="UpdateQuantity" asp-controller="Cart">
+                                    <input type="hidden" name="itemId" value="@item.ItemId" />
+                                    <input type="hidden" name="quantity" value="@(item.Quantity + 1)" />
+                                    <button type="submit" class="btn btn-sm btn-outline-light">+</button>
+                                </form>
+                            </div>
+                        </td>
+                        <td>@((item.Item.Price * item.Quantity).ToString("C"))</td>
+                        <td><a class="btn btn-danger" asp-action="RemoveFromCart" asp-controller="Cart" asp-route-id="@item.Item.Id">Remove</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <a href="/Order/Payment" class="btn btn-success">Proceed to Payment</a>
+    }
+</div>

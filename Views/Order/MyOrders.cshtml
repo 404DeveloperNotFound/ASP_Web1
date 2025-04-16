@@ -1,0 +1,61 @@
+﻿@model List<WebApplication1.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container">
+    <h2>My Orders</h2>
+
+    @if (!Model.Any())
+    {
+        <p>You have no orders yet.</p>
+    }
+    else
+    {
+        <table class="table table-dark">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Invoice</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.OrderDate.ToString("g")</td>
+                        <td>@foreach(var item in order.Items)
+                            {
+                                <p>
+                                <a asp-action="Details" asp-controller="Item" asp-route-id="@item.Item.Id" class="text-white hover-underline">@item.Item.Name</a>
+                                </p>
+                            }
+                        </td>
+                        <td>@order.Status</td>
+                        <td>@order.Items.Sum(i => i.Price * i.Quantity).ToString("C")</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-info" asp-action="DownloadInvoice" asp-route-id="@order.Id">Download</a>
+                        </td>
+                     </tr>
+            }
+        </tbody>
+    </table>
+}
+</div>
+
+<style>
+    .hover-underline {
+        transition: text-decoration 0.2s ease;
+        text-decoration: none
+    }
+
+    .hover-underline:hover {
+        text-decoration: underline;
+    }
+</style>

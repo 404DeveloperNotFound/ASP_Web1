@@ -5,7 +5,7 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Data
 {
-    public class Web1Context : DbContext // Changed to inherit from IdentityDbContext
+    public class Web1Context : DbContext
     {
         public Web1Context(DbContextOptions<Web1Context> options) : base(options)
         {
@@ -13,33 +13,46 @@ namespace WebApplication1.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Your existing configuration
-            modelBuilder.Entity<Items>().HasData(
-                new Items { Id = 7, Name = "Hehe Product", Price = 200, SerialNumberId = 3 });
+            //modelBuilder.Entity<Items>().HasData(
+            //    new Items { Id = 7, Name = "Hehe Product", Price = 200, SerialNumberId = 3 });
 
-            modelBuilder.Entity<SerialNumber>().HasData(
-                new SerialNumber { Id = 3, Name = "heh710", ItemId = 7 }
-            );
-
+  
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Electronics" },
                 new Category { Id = 2, Name = "Books" },
-                new Category { Id = 3, Name = "Food" }
+                new Category { Id = 3, Name = "Food" },
+                new Category { Id = 4, Name = "Grocery" },
+                new Category { Id = 5, Name = "Kitchen Utensils" },
+                new Category { Id = 6, Name = "Snacks" },
+                new Category { Id = 7, Name = "Decoration" },
+                new Category { Id = 8, Name = "Gadgets" },
+                new Category { Id = 9, Name = "Mobiles" },
+                new Category { Id = 10, Name = "Laptops" },
+                new Category { Id = 11, Name = "Home Appliances" },
+                new Category { Id = 12, Name = "Monitor" },
+                new Category { Id = 13, Name = "TV" },
+                new Category { Id = 14, Name = "Keyboard" },
+                new Category { Id = 15, Name = "AC" },
+                new Category { Id = 16, Name = "Furniture" },
+                new Category { Id = 17, Name = "Lights" },
+                new Category { Id = 18, Name = "Vehicle parts" },
+                new Category { Id = 19, Name = "Grooming" },
+                new Category { Id = 20, Name = "Beauty" },
+                new Category { Id = 21, Name = "Clothing" }
             );
 
             modelBuilder.Entity<Client>().HasIndex(c => c.Email).IsUnique();
 
             modelBuilder.Entity<Client>().HasIndex(c => c.Username).IsUnique();
 
-            // Required: Call the base OnModelCreating for Identity configuration
             base.OnModelCreating(modelBuilder);
         }
 
-        // Your existing DbSets
         public DbSet<Items> Items { get; set; }
-        public DbSet<SerialNumber> SerialNumbers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         //public DbSet<ItemClient> ItemClients { get; set; }
     }
 }

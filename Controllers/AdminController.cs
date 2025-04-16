@@ -23,7 +23,6 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> ManageItems()
         {
             var items = await _context.Items
-                .Include(i => i.SerailNumber)
                 .Include(i => i.Category)
                 .Include(i=>i.Clients)
                 .ToListAsync();
@@ -55,6 +54,16 @@ namespace WebApplication1.Controllers
             if (user == null) return NotFound();
 
             user.IsBlocked = true;
+            await _context.SaveChangesAsync();
+            return RedirectToAction("ManageUsers");
+        }
+        
+        public async Task<IActionResult> UnBlacklist(int id)
+        {
+            var user = await _context.Clients.FindAsync(id);
+            if (user == null) return NotFound();
+
+            user.IsBlocked = false;
             await _context.SaveChangesAsync();
             return RedirectToAction("ManageUsers");
         }

@@ -18,6 +18,14 @@ public class OrderController : Controller
 
     public IActionResult Payment()
     {
+        var addressId = HttpContext.Session.GetInt32("SelectedAddressId");
+        if (addressId == null)
+        {
+            return RedirectToAction("Select", "Address", new { returnUrl = "/Order/Payment" });
+        }
+
+        var address = _context.Addresses.Find(addressId.Value);
+        ViewBag.SelectedAddress = address;
         return View();
     }
 

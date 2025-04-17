@@ -1,0 +1,36 @@
+﻿@model List<WebApplication1.Models.Address>
+@{
+    ViewData["Title"] = "Your Addresses";
+}
+
+<div class="container mt-4">
+    <h2>Your Addresses</h2>
+    <a asp-action="Create" class="btn btn-success mb-3">Add New Address</a>
+    <table class="table table-dark">
+        <thead>
+            <tr>
+                <th>Address</th>
+                <th>Default</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var address in Model)
+            {
+                <tr>
+                    <td>@address.StreetAddress, @address.City, @address.State, @address.Country - @address.PostalCode</td>
+                    <td>@(address.IsDefault ? "Yes" : "No")</td>
+                    <td>
+                        @if (!address.IsDefault)
+                        {
+                            <form asp-action="SetDefault" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@address.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Make Default</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

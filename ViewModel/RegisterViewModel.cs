@@ -1,21 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApplication1.Models
+namespace WebApplication1.ViewModels
 {
-    public class Login
-    {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = null!;
-
-        [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = null;
-
-        public bool RememberMe { get; set; }
-    }
-
-    public class Register
+    public class RegisterViewModel
     {
         [Required]
         [EmailAddress]
@@ -34,6 +21,6 @@ namespace WebApplication1.Models
         public string ConfirmPassword { get; set; } = null!;
 
         [Required]
-        public string Role { get; set; } = "Client"; 
+        public string Role { get; set; } = "Client";
     }
 }

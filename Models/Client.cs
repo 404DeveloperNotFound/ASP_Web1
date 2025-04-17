@@ -14,11 +14,16 @@ namespace WebApplication1.Models
         public string PasswordHash { get; set; }
         public bool IsBlocked { get; set; } = false;
         [Required]
-        public string Role { get; set; } // "Admin" or "Client"
+        public string Role { get; set; } // "Admin" or "Client
+
     }
+
     public class Client : User
     {
         public List<Order>? Orders { get; set; }
+
+        public List<Address> Addresses { get; set; } = new();
+
         //public List<Items>? Items { get; set; }
 
         //public List<ItemClient>? ItemClients { get; set; }

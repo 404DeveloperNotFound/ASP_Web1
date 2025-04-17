@@ -1,0 +1,51 @@
+﻿@model WebApplication1.Models.Address
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Add Address";
+}
+
+<div class="container mt-4">
+    <h2>Add New Address</h2>
+
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="form-group mb-2">
+            <label asp-for="StreetAddress" class="form-label"></label>
+            <input asp-for="StreetAddress" class="form-control" />
+            <span asp-validation-for="StreetAddress" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-2">
+            <label asp-for="City" class="form-label"></label>
+            <input asp-for="City" class="form-control" />
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-2">
+            <label asp-for="State" class="form-label"></label>
+            <input asp-for="State" class="form-control" />
+            <span asp-validation-for="State" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-2">
+            <label asp-for="Country" class="form-label"></label>
+            <input asp-for="Country" class="form-control" />
+            <span asp-validation-for="Country" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-4">
+            <label asp-for="PostalCode" class="form-label"></label>
+            <input asp-for="PostalCode" class="form-control" />
+            <span asp-validation-for="PostalCode" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Address</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

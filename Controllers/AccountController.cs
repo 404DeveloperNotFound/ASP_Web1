@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WebApplication1.Data;
 
+// CHANGE
 namespace WebApplication1.Controllers
 {
     public class AccountController : Controller

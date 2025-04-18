@@ -30,5 +30,6 @@ namespace WebApplication1.Models
         public string Status { get; set; } = "Processing";
         public int ClientId { get; set; }
         public Client Client { get; set; }
+        public Address Address { get; set; }
     }
 }

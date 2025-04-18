@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using WebApplication1.Data;
 using WebApplication1.Models;
+using IronPdf;
 
 [Authorize]
 public class OrderController : Controller
@@ -40,11 +41,13 @@ public class OrderController : Controller
             return RedirectToAction("Index", "Cart");
         }
 
-        // populating items 
         foreach (var item in cart)
         {
             item.Item = await _context.Items.FindAsync(item.ItemId);
         }
+
+        var addressId = HttpContext.Session.GetInt32("SelectedAddressId");
+        var address = addressId.HasValue ? await _context.Addresses.FindAsync(addressId.Value) : null;
 
         var order = new Order
         {
@@ -55,22 +58,31 @@ public class OrderController : Controller
                 Quantity = c.Quantity,
                 Price = (decimal)c.Item.Price
             }).ToList(),
-            Status = "Placed"
+            Status = "Placed",
+            Address = address ?? new Address()
         };
 
         _context.Orders.Add(order);
         await _context.SaveChangesAsync();
 
         HttpContext.Session.Remove("Cart");
+
         return RedirectToAction("OrderPlaced", new { id = order.Id });
     }
 
     public IActionResult OrderPlaced(int id)
     {
         var order = _context.Orders
+            .Include(o => o.Address)
+            .Include(o => o.Client)
             .Include(o => o.Items)
-            .ThenInclude(i => i.Item)
+                .ThenInclude(i => i.Item)
             .FirstOrDefault(o => o.Id == id);
+
+        if (order == null)
+        {
+            return NotFound();
+        }
 
         return View(order);
     }
@@ -86,7 +98,7 @@ public class OrderController : Controller
         var orders = _context.Orders
             .Where(o => o.ClientId == clientId)
             .Include(o => o.Items)
-            .ThenInclude(i => i.Item)
+                .ThenInclude(i => i.Item)
             .ToList();
 
         return View(orders);
@@ -94,6 +106,93 @@ public class OrderController : Controller
 
     public IActionResult DownloadInvoice(int id)
     {
-        return File(Encoding.UTF8.GetBytes("Dummy invoice for order " + id), "text/plain", "Invoice.txt");
+        var order = _context.Orders
+            .Include(o => o.Items)
+                .ThenInclude(oi => oi.Item)
+            .Include(o => o.Client)
+            .Include(o => o.Address)
+            .FirstOrDefault(o => o.Id == id);
+
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        var htmlContent = GenerateInvoiceHtml(order);
+        var renderer = new HtmlToPdf();
+        var pdf = renderer.RenderHtmlAsPdf(htmlContent);
+        var pdfBytes = pdf.BinaryData;
+
+        return File(pdfBytes, "application/pdf", $"Invoice_Order_{id}.pdf");
+    }
+
+    private string GenerateInvoiceHtml(Order order)
+    {
+        var sb = new StringBuilder();
+
+        sb.Append($@"
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; font-size: 14px; }}
+                h1 {{ color: #2c3e50; }}
+                table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+                th {{ background-color: #f4f4f4; }}
+                tfoot td {{ font-weight: bold; }}
+            </style>
+        </head>
+        <body>
+            <h1>Invoice - Order #{order.Id}</h1>
+            <p><strong>Date:</strong> {order.OrderDate:dd MMM yyyy}</p>
+            <p><strong>Customer:</strong> {order.Client?.Username}</p>
+            <p><strong>Address:</strong> {order.Address?.StreetAddress}, {order.Address?.City}, {order.Address?.State}, {order.Address?.PostalCode}</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>");
+
+                decimal grandTotal = 0;
+
+                foreach (var orderItem in order?.Items)
+                {
+                    var itemName = orderItem.Item?.Name ?? "Unnamed Item";
+                    var quantity = orderItem.Quantity;
+                    var price = orderItem.Price;
+                    var total = quantity * price;
+
+                    grandTotal += total;
+
+                    sb.Append($@"
+                    <tr>
+                        <td>{itemName}</td>
+                        <td>{quantity}</td>
+                        <td>{price:C}</td>
+                        <td>{total:C}</td>
+                    </tr>");
+                }
+
+                sb.Append($@"
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan='3' style='text-align:right;'>Grand Total</td>
+                        <td>{grandTotal:C}</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <p style='margin-top: 40px;'>Thank you for your order!</p>
+        </body>
+        </html>");
+
+        return sb.ToString();
     }
 }

@@ -30,6 +30,7 @@
                 <td>@((item.Price * item.Quantity).ToString("C"))</td>
             </tr>
         }
+        <p><strong> Billing Address: </strong> @Model.Address.StreetAddress, @Model.Address.City, @Model.Address.State, @Model.Address.Country - @Model.Address.PostalCode</p>
     </tbody>
 </table>
 

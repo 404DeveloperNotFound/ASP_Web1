@@ -2,13 +2,6 @@
 
 namespace WebApplication1.Models
 {
-    public class CartItem
-    {
-        public int ItemId { get; set; }
-        public Items Item { get; set; }
-        public int Quantity { get; set; }
-    }
-
     public class OrderItem
     {
         public int Id { get; set; }

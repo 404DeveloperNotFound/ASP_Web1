@@ -1,8 +1,8 @@
 ﻿@model WebApplication1.Models.Address
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
 @{
     ViewData["Title"] = "Add Address";
+    string returnUrl = ViewBag.ReturnUrl as string;
 }
 
 <div class="container mt-4">
@@ -11,6 +11,8 @@
     <form asp-action="Create" method="post">
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <input type="hidden" name="returnUrl" value="@returnUrl" />
 
         <div class="form-group mb-2">
             <label asp-for="StreetAddress" class="form-label"></label>

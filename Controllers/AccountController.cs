@@ -7,15 +7,18 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WebApplication1.Data;
+using WebApplication1.DataTransferObjects;
 
 namespace WebApplication1.Controllers
 {
     public class AccountController : Controller
     {
         private readonly Web1Context _context;
-        public AccountController(Web1Context context)
+        private readonly CartService _cartService;
+        public AccountController(Web1Context context, CartService cartService)
         {
             _context = context;
+            _cartService = cartService;
         }
 
         // GET: /Account/Register
@@ -85,6 +88,9 @@ namespace WebApplication1.Controllers
                     ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
                 });
 
+            var sessionCart = await _cartService.LoadCartFromDbAsync(user.Id.ToString());
+            HttpContext.Session.SetObject("Cart", sessionCart);
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -135,6 +141,9 @@ namespace WebApplication1.Controllers
                     IsPersistent = model.RememberMe,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
                 });
+            
+            var cart = await _cartService.LoadCartFromDbAsync(user.Id.ToString());
+            HttpContext.Session.SetObject("Cart", cart);
 
             return RedirectToAction("Index", "Home");
         }
@@ -144,9 +153,19 @@ namespace WebApplication1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // Clear the cookie
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null)
+            {
+                var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart");
+                if (sessionCart != null)
+                {
+                    await _cartService.SaveCartToDbAsync(userId, sessionCart);
+                }
+            }
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
+
     }
 } 

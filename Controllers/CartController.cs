@@ -37,7 +37,7 @@ namespace WebApplication1.Controllers
             }
             HttpContext.Session.SetObject("Cart", cart);
 
-            return RedirectToAction("Index");
+            return Json(new { message = "Item added successfully" });
         }
 
         public IActionResult RemoveFromCart(int id)

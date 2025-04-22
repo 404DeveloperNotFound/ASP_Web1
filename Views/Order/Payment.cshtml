@@ -2,10 +2,119 @@
     ViewData["Title"] = "Payment";
 }
 
-<h2>Payment Page</h2>
+<div class="container">
 
-<p>This is a dummy payment screen. You can simulate payment here.</p>
+<h2 class="text-center my-4">Complete Your Payment</h2>
 
-<form asp-controller="Order" asp-action="ConfirmPayment" method="post">
-    <button type="submit" class="btn btn-success">Confirm Payment</button>
-</form>
+<div class="d-flex justify-content-between gap-4"> 
+    <div class="d-flex w-50 flex-column"> 
+        <!-- Order Summary -->
+        <div class="order-summary text-black">
+            <h4>Order Summary</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        @if (Model.CartItems == null || Model.CartItems.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center">No items in the cart.</td>
+                            </tr>
+                        }
+                        else{
+                            @foreach (var item in Model.CartItems)
+                            {
+                                <tr>
+                                    <td>@item.Item.Name</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.Item.Price.ToString("C")</td>
+                                    <td>@((item.Quantity * item.Item.Price).ToString("C"))</td>
+                                </tr>
+                            }
+                        }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>Total</strong></td>
+                        <td><strong>@Model.TotalAmount.ToString("C")</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <!-- Shipping Address -->
+        <div class="shipping-address text-black">
+            <h4>Shipping Address</h4>
+            <p>@ViewBag.SelectedAddress?.StreetAddress</p>
+            <p>@ViewBag.SelectedAddress?.City, @ViewBag.SelectedAddress?.State - @ViewBag.SelectedAddress?.PostalCode</p>
+       </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="payment-method w-50 text-black">
+        <h4>Payment Method</h4>
+        <form asp-controller="Order" asp-action="ConfirmPayment" method="post">
+            <div class="mb-3">
+                <label for="creditCard" class="form-label">Credit Card Number</label>
+                <input type="text" class="form-control" id="creditCard" placeholder="Enter card number" required>
+            </div>
+            <div class="mb-3">
+                <label for="expiryDate" class="form-label">Expiry Date</label>
+                <input type="month" class="form-control" id="expiryDate" required>
+            </div>
+            <div class="mb-3">
+                <label for="cvv" class="form-label">CVV</label>
+                <input type="text" class="form-control" id="cvv" placeholder="Enter CVV" required>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block">Confirm Payment</button>
+        </form>
+    </div>
+</div>
+
+<div class="mt-3 text-center">
+    <a asp-controller="Cart" asp-action="Index" class="btn btn-secondary">Back to Cart</a>
+</div>
+
+</div>
+<style>
+        .order-summary, .shipping-address, .payment-method {
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .order-summary table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .order-summary th, .order-summary td {
+            text-align: center;
+        }
+
+        .payment-method input {
+            margin-bottom: 15px;
+        }
+
+        .payment-method .form-label {
+            font-weight: bold;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .btn-secondary {
+            width: auto;
+            margin-top: 10px;
+        }
+    }
+</style>

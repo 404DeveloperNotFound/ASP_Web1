@@ -6,6 +6,7 @@ using System.Text;
 using WebApplication1.Data;
 using WebApplication1.Models;
 using IronPdf;
+using WebApplication1.ViewModel;
 
 [Authorize]
 public class OrderController : Controller
@@ -27,7 +28,15 @@ public class OrderController : Controller
 
         var address = _context.Addresses.Find(addressId.Value);
         ViewBag.SelectedAddress = address;
-        return View();
+
+        var cart = HttpContext.Session.GetObject<List<CartItem>>("Cart");
+        var totalAmount = cart?.Sum(c => c.Quantity * c.Item.Price) ?? 0;
+
+        return View(new PaymentViewModel
+        {
+            CartItems = cart,
+            TotalAmount = (decimal)totalAmount
+        });
     }
 
     [HttpPost]

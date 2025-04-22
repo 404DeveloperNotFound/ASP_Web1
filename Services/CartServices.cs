@@ -12,21 +12,34 @@ public class CartService
         _context = context;
     }
 
-    public async Task SaveCartToDbAsync(string userId, SessionCart cart)
+    public async Task SaveCartToDbAsync(string userId, SessionCart sessionCart)
     {
         int uid = int.Parse(userId);
 
-        var existingItems = _context.CartItems.Where(c => c.ClientId == uid);
-        _context.CartItems.RemoveRange(existingItems);
+        // Get or create the user's cart
+        var cart = await _context.Carts
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.UserId == uid);
 
-        foreach (var item in cart.Items)
+        if (cart == null)
         {
-            _context.CartItems.Add(new CartItem
+            cart = new Cart { UserId = uid };
+            _context.Carts.Add(cart);
+            await _context.SaveChangesAsync(); // Save to get Cart.Id
+        }
+
+        // Clear existing items
+        cart.Items.Clear();
+
+        // Add new items
+        foreach (var dto in sessionCart.Items)
+        {
+            cart.Items.Add(new CartItem
             {
-                ClientId = uid,
-                ItemId = item.ItemId,
-                Quantity = item.Quantity,
-                Price = item.Price
+                CartId = cart.Id, // Link to the Cart
+                ItemId = dto.ItemId,
+                Quantity = dto.Quantity,
+                Price = dto.Price
             });
         }
 
@@ -37,19 +50,21 @@ public class CartService
     {
         int uid = int.Parse(userId);
 
-        var items = await _context.CartItems
-                                  .Include(i => i.Item)
-                                  .Where(c => c.ClientId == uid)
-                                  .ToListAsync();
+        var cart = await _context.Carts
+            .Include(c => c.Items)
+            .ThenInclude(ci => ci.Item)
+            .FirstOrDefaultAsync(c => c.UserId == uid);
+
+        if (cart == null) return new SessionCart();
 
         return new SessionCart
         {
-            Items = items.Select(i => new CartItemDto
+            Items = cart.Items.Select(ci => new CartItemDto
             {
-                ItemId = i.ItemId,
-                Quantity = i.Quantity,
-                Price = i.Price,
-                Name = i.Item?.Name ?? "Unknown"
+                ItemId = ci.ItemId,
+                Name = ci.Item?.Name ?? "Unknown",
+                Quantity = ci.Quantity,
+                Price = ci.Price
             }).ToList()
         };
     }

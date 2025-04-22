@@ -1,5 +1,4 @@
-﻿@model List<WebApplication1.Models.CartItem>
-
+﻿@model IEnumerable<WebApplication1.DataTransferObjects.CartItemDto>
 @{
     ViewData["Title"] = "Your Cart";
 }
@@ -27,8 +26,8 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@item.Item.Name</td>
-                        <td>@item.Item.Price.ToString("C")</td>
+                        <td>@item.Name</td>
+                        <td>@item.Price.ToString("C")</td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 <form method="post" asp-action="UpdateQuantity" asp-controller="Cart">
@@ -46,8 +45,8 @@
                                 </form>
                             </div>
                         </td>
-                        <td>@((item.Item.Price * item.Quantity).ToString("C"))</td>
-                        <td><a class="btn btn-danger" asp-action="RemoveFromCart" asp-controller="Cart" asp-route-id="@item.Item.Id">Remove</a></td>
+                        <td>@((item.Price * item.Quantity).ToString("C"))</td>
+                        <td><a class="btn btn-danger" asp-action="RemoveFromCart" asp-controller="Cart" asp-route-id="@item.ItemId">Remove</a></td>
                     </tr>
                 }
             </tbody>

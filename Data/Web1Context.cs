@@ -40,6 +40,15 @@ namespace WebApplication1.Data
                 new Category { Id = 20, Name = "Beauty" },
                 new Category { Id = 21, Name = "Clothing" }
             );
+            modelBuilder.Entity<Cart>()
+              .HasOne(c => c.User)
+              .WithMany()
+              .HasForeignKey(c => c.UserId);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(ci => ci.Cart)
+                .WithMany(c => c.Items)
+                .HasForeignKey(ci => ci.CartId);
 
             modelBuilder.Entity<Client>().HasIndex(c => c.Email).IsUnique();
 

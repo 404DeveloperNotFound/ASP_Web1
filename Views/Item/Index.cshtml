@@ -1,4 +1,4 @@
-﻿@model List<WebApplication1.Models.Items>
+﻿@model PaginatedList<WebApplication1.Models.Items>
 @{
     ViewData["Title"] = "Index";
 }
@@ -13,6 +13,7 @@
 
 <div class="container">
     <form asp-action="Index" method="get" class="container mb-4">
+        <input type="hidden" name="pageNumber" value="1" />
         <div class="row gx-2 gy-3 align-items-center">
             <div class="col-md-4">
                 <input type="text" name="search" value="@ViewData["CurrentSearch"]" class="form-control" placeholder="Search by name or serial..." />
@@ -50,7 +51,7 @@
     </form>
 
     <div class="row g-4">
-        @if(Model.Count == 0)
+        @if(!Model.Any())
         {
             <strong class="d-flex justify-content-center align-items-center mt-5">No Items found</strong>
         }
@@ -111,6 +112,48 @@
         }
     </div>
 </div>
+@if (Model.TotalPages > 1)
+{
+    <div class="pagination-container mt-4">
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       asp-route-search="@ViewData["CurrentSearch"]"
+                       asp-route-categoryId="@ViewData["CurrentCategory"]"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]">
+                        ←
+                    </a>
+                </li>
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pageNumber="@i"
+                           asp-route-search="@ViewData["CurrentSearch"]"
+                           asp-route-categoryId="@ViewData["CurrentCategory"]"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]">
+                            @i
+                        </a>
+                    </li>
+                }
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       asp-route-search="@ViewData["CurrentSearch"]"
+                       asp-route-categoryId="@ViewData["CurrentCategory"]"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]">
+                        →
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}
 
 <script>
     document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
@@ -150,17 +193,47 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     }
 
-        .hover-card:hover {
-            transform: scale(1.03);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-            cursor: pointer;
-        }
+    .hover-card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        cursor: pointer;
+    }
 
     .hover-underline {
         transition: text-decoration 0.2s ease;
     }
 
-        .hover-underline:hover {
-            text-decoration: underline;
-        }
+    .hover-underline:hover {
+        text-decoration: underline;
+    }
+
+    .pagination-container {
+        margin-top: 2rem;
+        padding: 1rem;
+        background-color: #2d2d2d;
+        border-radius: 5px;
+    }
+
+    .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .page-link {
+        color: #fff;
+        background-color: #404040;
+        border: 1px solid #303030;
+    }
+
+    .page-link:hover {
+        color: #fff;
+        background-color: #505050;
+        border-color: #404040;
+    }
+
+    .page-item.disabled .page-link {
+        background-color: #303030;
+        border-color: #202020;
+        color: #666;
+    }
 </style>

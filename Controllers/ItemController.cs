@@ -16,22 +16,31 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string search, int? categoryId, string sortOrder)
+        public async Task<IActionResult> Index(
+             string search,
+             int? categoryId,
+             string sortOrder,
+             int? pageNumber)  
         {
+            const int pageSize = 10;  
+
             ViewData["CurrentSearch"] = search;
             ViewData["CurrentCategory"] = categoryId;
             ViewData["CurrentSort"] = sortOrder;
             ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
 
-            var items = _context.Items.Include(i => i.Category).Include(i => i.Clients).AsQueryable();
+            IQueryable<Items> items = _context.Items
+                .Include(i => i.Category)
+                .Include(i => i.Clients);
 
             // Filtering
             if (!string.IsNullOrEmpty(search))
             {
-                items = items.Where(i => i.Name.Contains(search) || i.SerialNumber.Contains(search));
+                items = items.Where(i =>
+                    i.Name.Contains(search) ||
+                    i.SerialNumber.Contains(search));
             }
 
-            // Filter by category
             if (categoryId.HasValue)
             {
                 items = items.Where(i => i.CategoryId == categoryId.Value);
@@ -47,7 +56,14 @@ namespace WebApplication1.Controllers
                 _ => items.OrderBy(i => i.Name)
             };
 
-            return View(await items.ToListAsync());
+            // Pagination
+            var paginatedItems = await PaginatedList<Items>.CreateAsync(
+                items.AsNoTracking(),
+                pageNumber ?? 1,
+                pageSize
+            );
+
+            return View(paginatedItems);
         }
 
         [Authorize(Roles = "Admin")]

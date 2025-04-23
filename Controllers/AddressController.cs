@@ -70,7 +70,7 @@ namespace WebApplication1.Controllers
         {
             if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
             {
-                returnUrl = Url.Action("Payment", "Order"); // default fallback
+                returnUrl = Url.Action("Payment", "Order");
             }
 
             ViewBag.ReturnUrl = returnUrl;

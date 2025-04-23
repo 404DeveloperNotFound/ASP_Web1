@@ -41,7 +41,7 @@ public class CartController : Controller
         }
         HttpContext.Session.SetObject("Cart", sessionCart);
 
-        return Json(new { message = "Item added successfully" });
+        return Json(new { message = $"{item.Name} added successfully" });
     }
 
     public IActionResult RemoveFromCart(int id)

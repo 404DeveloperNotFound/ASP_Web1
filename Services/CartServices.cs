@@ -16,7 +16,6 @@ public class CartService
     {
         int uid = int.Parse(userId);
 
-        // Get or create the user's cart
         var cart = await _context.Carts
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.UserId == uid);
@@ -25,10 +24,9 @@ public class CartService
         {
             cart = new Cart { UserId = uid };
             _context.Carts.Add(cart);
-            await _context.SaveChangesAsync(); // Save to get Cart.Id
+            await _context.SaveChangesAsync();
         }
 
-        // Clear existing items
         cart.Items.Clear();
 
         // Add new items
@@ -36,7 +34,7 @@ public class CartService
         {
             cart.Items.Add(new CartItem
             {
-                CartId = cart.Id, // Link to the Cart
+                CartId = cart.Id, 
                 ItemId = dto.ItemId,
                 Quantity = dto.Quantity,
                 Price = dto.Price

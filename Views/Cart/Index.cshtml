@@ -51,7 +51,9 @@
                 }
             </tbody>
         </table>
-
-        <a href="/Order/Payment" class="btn btn-success">Proceed to Payment</a>
+        <div class="d-flex justify-content-between mb-3 mt-5">
+            <a href="/Order/Payment" class="btn btn-success">Proceed to Payment</a>
+            <h4>Total: @Model.Sum(item => item.Price * item.Quantity).ToString("C")</h4>
+        </div>
     }
 </div>

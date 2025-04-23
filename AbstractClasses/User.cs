@@ -14,7 +14,7 @@ namespace WebApplication1.AbstractClasses
         public string PasswordHash { get; set; }
         public bool IsBlocked { get; set; } = false;
         [Required]
-        public string Role { get; set; } // "Admin" or "Client
+        public string Role { get; set; } // "Admin" or "Client"
 
     }
 }

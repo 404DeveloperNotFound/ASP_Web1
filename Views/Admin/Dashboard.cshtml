@@ -9,15 +9,12 @@
         <div class="btn-group mb-4" role="group">
             <a asp-controller="Admin" asp-action="ManageItems" class="btn btn-outline-primary @(viewType == "Items" ? "active" : "")">Items</a>
             <a asp-controller="Admin" asp-action="ManageUsers" class="btn btn-outline-primary @(viewType == "Users" ? "active" : "")">Users</a>
+            <a asp-controller="Admin" asp-action="ViewAdmins" class="btn btn-outline-primary @(viewType == "Admins" ? "active" : "")">Admins</a>
         </div>
         <div class="">
             @if(viewType == "Items")
             {   
                 <a asp-controller="Item" asp-action="Create" class="btn btn-success">Add Item +</a>
-            }
-            else
-            {
-                @* <a asp-controller="Admin" asp-action="AddUser" class="btn btn-success">Add User +</a> *@
             }
         </div>
     </div>
@@ -80,6 +77,28 @@
                                 <a asp-controller="Admin" asp-action="Blacklist" asp-route-id="@user.Id" class="btn btn-sm btn-danger">Block</a>
                             }
                         </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else if (viewType == "Admins")
+    {
+        <table class="table table-dark table-bordered">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.Username</td>
+                        <td>@user.Email</td>
+                        <td>@user.Role</td>
                     </tr>
                 }
             </tbody>

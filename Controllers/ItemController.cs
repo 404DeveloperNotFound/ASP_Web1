@@ -25,13 +25,13 @@ namespace WebApplication1.Controllers
 
             var items = _context.Items.Include(i => i.Category).Include(i => i.Clients).AsQueryable();
 
-            // Filtering by search
+            // Filtering
             if (!string.IsNullOrEmpty(search))
             {
                 items = items.Where(i => i.Name.Contains(search) || i.SerialNumber.Contains(search));
             }
 
-            // Filtering by category
+            // Filter by category
             if (categoryId.HasValue)
             {
                 items = items.Where(i => i.CategoryId == categoryId.Value);

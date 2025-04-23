@@ -7,7 +7,7 @@
 <div class="container my-5">
     <div class="card bg-dark text-white p-4 shadow-lg">
         <div class="row g-4 align-items-start">
-            <!-- Left Column: Image -->
+            <!-- Left Column -->
             <div class="col-md-4 d-flex justify-content-center">
                 <div class="image-container">
                     <img src="@Url.Content(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/default.png" : Model.ImageUrl)"
@@ -16,10 +16,10 @@
                 </div>
             </div>
 
-            <!-- Right Column: Details -->
+            <!-- Right Column -->
             <div class="col-md-8">
                 <h2 class="card-title">@Model.Name</h2>
-                <h4 class="text-info mb-3">$ @Model.Price.ToString("N2")</h4>
+                <h4 class="text-info mb-3">@Model.Price.ToString("C")</h4>
 
                 <p>
                     <strong>Serial Number:</strong> @Model?.SerialNumber <br />

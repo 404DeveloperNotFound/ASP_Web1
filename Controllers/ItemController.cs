@@ -16,12 +16,38 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search, int? categoryId, string sortOrder)
         {
-            var items = await _context.Items.Include(c => c.Category)
-                                            .Include(c => c.Clients)
-                                            .ToListAsync();
-            return View(items);
+            ViewData["CurrentSearch"] = search;
+            ViewData["CurrentCategory"] = categoryId;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
+
+            var items = _context.Items.Include(i => i.Category).Include(i => i.Clients).AsQueryable();
+
+            // Filtering by search
+            if (!string.IsNullOrEmpty(search))
+            {
+                items = items.Where(i => i.Name.Contains(search) || i.SerialNumber.Contains(search));
+            }
+
+            // Filtering by category
+            if (categoryId.HasValue)
+            {
+                items = items.Where(i => i.CategoryId == categoryId.Value);
+            }
+
+            // Sorting
+            items = sortOrder switch
+            {
+                "price_asc" => items.OrderBy(i => i.Price),
+                "price_desc" => items.OrderByDescending(i => i.Price),
+                "name_asc" => items.OrderBy(i => i.Name),
+                "name_desc" => items.OrderByDescending(i => i.Name),
+                _ => items.OrderBy(i => i.Name)
+            };
+
+            return View(await items.ToListAsync());
         }
 
         [Authorize(Roles = "Admin")]
@@ -33,7 +59,7 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id","Name","Price", "CategoryId","SerialNumber")] Items item)
+        public async Task<IActionResult> Create([Bind("Id","Name","Price", "ImageUrl", "CategoryId","SerialNumber")] Items item)
         {
             if (!ModelState.IsValid)
             {
@@ -56,7 +82,7 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price","CategoryId","SerialNumber")] Items item)
+        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price", "ImageUrl", "CategoryId","SerialNumber")] Items item)
         {
             if (ModelState.IsValid)
             {
@@ -69,6 +95,7 @@ namespace WebApplication1.Controllers
                 existingItem.Name = item.Name;
                 existingItem.Price = item.Price;
                 existingItem.CategoryId = item.CategoryId;
+                existingItem.ImageUrl = item.ImageUrl;
 
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index", "Admin");

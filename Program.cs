@@ -33,6 +33,7 @@ internal class Program
 
         builder.Services.AddControllersWithViews().AddNewtonsoftJson();
         builder.Services.AddDistributedMemoryCache(); // Enables in-memory storage for sessions
+        builder.Services.AddScoped<CartService>();
         builder.Services.AddSession(options =>
         {
             options.IdleTimeout = TimeSpan.FromMinutes(30); // optional timeout

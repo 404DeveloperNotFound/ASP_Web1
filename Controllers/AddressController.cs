@@ -24,13 +24,14 @@ namespace WebApplication1.Controllers
             return View(addresses);
         }
 
-        public IActionResult Create()
+        public IActionResult Create(string returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Address");
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("StreetAddress","City","State","Country","PostalCode")] Address address)
+        public async Task<IActionResult> Create([Bind("StreetAddress","City","State","Country","PostalCode")] Address address, string returnUrl)
         {
             Console.WriteLine(GetCurrentUserId());
             if (!ModelState.IsValid)
@@ -41,7 +42,14 @@ namespace WebApplication1.Controllers
             address.ClientId = GetCurrentUserId();
             _context.Add(address);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpPost]
@@ -60,7 +68,12 @@ namespace WebApplication1.Controllers
 
         public IActionResult Select(string returnUrl = null)
         {
-            ViewBag.ReturnUrl = returnUrl ?? "/Order/Payment";
+            if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+            {
+                returnUrl = Url.Action("Payment", "Order"); // default fallback
+            }
+
+            ViewBag.ReturnUrl = returnUrl;
             var clientId = GetCurrentUserId();
             var addresses = _context.Addresses.Where(a => a.ClientId == clientId).ToList();
             return View(addresses);

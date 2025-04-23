@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Models;   
+using WebApplication1.ViewModel;   
 
 namespace WebApplication1.Controllers
 {
@@ -17,7 +17,18 @@ namespace WebApplication1.Controllers
         // GET: /Home/Index
         public IActionResult Index()
         {
-            return View();
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+            else if (User.IsInRole("Client"))
+            {
+                return RedirectToAction("Index", "Item");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         // GET: /Home/Privacy

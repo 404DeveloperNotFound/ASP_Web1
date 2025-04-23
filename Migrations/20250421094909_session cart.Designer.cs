@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(Web1Context))]
-    partial class Web1ContextModelSnapshot : ModelSnapshot
+    [Migration("20250421094909_session cart")]
+    partial class sessioncart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,53 +24,6 @@ namespace WebApplication1.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Cart", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Carts");
-                });
-
-            modelBuilder.Entity("CartItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CartId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CartId");
-
-                    b.HasIndex("ItemId");
-
-                    b.ToTable("CartItems");
-                });
 
             modelBuilder.Entity("WebApplication1.Models.Address", b =>
                 {
@@ -108,6 +64,55 @@ namespace WebApplication1.Migrations
                     b.HasIndex("ClientId");
 
                     b.ToTable("Addresses");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Cart", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Carts");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.CartItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CartId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Category", b =>
@@ -368,20 +373,18 @@ namespace WebApplication1.Migrations
                     b.ToTable("OrderItems");
                 });
 
-            modelBuilder.Entity("Cart", b =>
+            modelBuilder.Entity("WebApplication1.Models.Address", b =>
                 {
-                    b.HasOne("WebApplication1.Models.Client", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("WebApplication1.Models.Client", "Client")
+                        .WithMany("Addresses")
+                        .HasForeignKey("ClientId");
 
-                    b.Navigation("User");
+                    b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("CartItem", b =>
+            modelBuilder.Entity("WebApplication1.Models.CartItem", b =>
                 {
-                    b.HasOne("Cart", "Cart")
+                    b.HasOne("WebApplication1.Models.Cart", "Cart")
                         .WithMany("Items")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -396,15 +399,6 @@ namespace WebApplication1.Migrations
                     b.Navigation("Cart");
 
                     b.Navigation("Item");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.Address", b =>
-                {
-                    b.HasOne("WebApplication1.Models.Client", "Client")
-                        .WithMany("Addresses")
-                        .HasForeignKey("ClientId");
-
-                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Client", b =>
@@ -461,7 +455,7 @@ namespace WebApplication1.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Cart", b =>
+            modelBuilder.Entity("WebApplication1.Models.Cart", b =>
                 {
                     b.Navigation("Items");
                 });

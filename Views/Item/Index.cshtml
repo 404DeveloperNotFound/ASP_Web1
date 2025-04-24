@@ -60,7 +60,11 @@
             @foreach (var item in Model)
             {
                 <div class="col-md-3">
-                    <div class="card bg-dark text-white hover-card d-flex flex-column @(item.Quantity <= 0 ? "out-of-stock" : "")" style="min-height: 25rem">
+                    <div class="card bg-dark text-white hover-card d-flex flex-column @(item.Quantity <= 0 ? "out-of-stock" : "")" style="min-height: 25rem; position: relative;">
+                        @if (item.Quantity <= 0)
+                        {
+                            <div class="stockLabel">OUT OF STOCK</div>
+                        }
                         <div class="card-body d-flex flex-column">
                             <div class="image-container mb-4 d-flex justify-content-center align-items-center">
                                 <img src="@Url.Content(string.IsNullOrEmpty(item.ImageUrl) ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTK3c711Qnpwx8NGSS2NfnYxn-j2ckJV1Zc5A&s" : item.ImageUrl)"
@@ -73,21 +77,6 @@
                                 <strong>Serial:</strong> @item?.SerialNumber <br />
                                 <strong>Category:</strong> @item?.Category?.Name <br />
                                 <strong>Quantity in Stock:</strong> @item?.Quantity <br />
-                                @* <strong>Clients:</strong> *@
-                                @* @if (item.Clients != null && item.Clients.Count > 0) *@
-                                @* { *@
-                                @*     int cnt = 0; *@
-                                @*     foreach (var i in item.Clients) *@
-                                @*     { *@
-                                @*         @i.Username *@
-                                @*         @(cnt != item.Clients.Count - 1 ? ", " : "") *@
-                                @*         cnt++; *@
-                                @*     } *@
-                                @* } *@
-                                @* else *@
-                                @* { *@
-                                @*     <span>None</span> *@
-                                @* } *@
                             </p>
                             <div class="mt-auto">
                                 @if (User.IsInRole("Admin"))
@@ -102,7 +91,6 @@
                                     <div class="d-flex justify-content-between">
                                         <a asp-controller="Cart" asp-action="BuyNow" asp-route-id="@item.Id" class="btn btn-sm btn-warning px-3">Buy</a>
                                         <button type="button" class="btn btn-sm btn-primary add-to-cart-btn" data-id="@item.Id">Add to Cart</button>
-                                        @* <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@item.Id" onclick="AddedToCart()" class="btn btn-sm btn-primary add-to-cart-btn" data-id="@item.Id">Add to Cart</a> *@
                                     </div>
                                 }
                             </div>
@@ -239,27 +227,51 @@
     }
 
     .out-of-stock {
-        opacity: 0.5;
-        pointer-events: none;
         position: relative;
+        pointer-events: none;
     }
 
-    .out-of-stock::after {
-        content: "Out of Stock";
+        .out-of-stock::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0.35rem;
+        }
+
+    .stockLabel {
         position: absolute;
-        top: 30%;
+        top: 40%;
         left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: transparent;
-        font-size:16px;
-        color: rgba(255, 0, 0, 0.9);
-        font-weight: 800;
-        font-size: 28spx;
-        padding: 0.25rem 0.5rem;
-        border: 5px solid rgba(255, 0, 0, 0.9);
+        text-align:center;
+        transform: translate(-50%, -50%) rotate(-15deg);
+        font-size: 2rem;
+        font-weight: 900;
+        color: #ff0000;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        z-index: 2;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 0.5rem 1.5rem;
         border-radius: 5px;
-        z-index: 1;
+        border: 3px solid #ff0000;
+        animation: pulse 1.5s infinite;
     }
 
+    @@keyframes pulse {
+        0% {
+            transform: translate(-50%, -50%) rotate(-15deg) scale(1);
+        }
+
+        50% {
+            transform: translate(-50%, -50%) rotate(-15deg) scale(1.05);
+        }
+
+        100% {
+            transform: translate(-50%, -50%) rotate(-15deg) scale(1);
+        }
+    }
 
 </style>

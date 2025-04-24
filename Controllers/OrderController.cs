@@ -40,46 +40,6 @@ public class OrderController : Controller
         });
     }
 
-    //[HttpPost]
-    //public async Task<IActionResult> ConfirmPayment()
-    //{
-    //    var cart = HttpContext.Session.GetObject<List<CartItem>>("Cart");
-    //    var clientIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    //    if (!int.TryParse(clientIdStr, out var clientId) || cart == null || !cart.Any())
-    //    {
-    //        return RedirectToAction("Index", "Cart");
-    //    }
-
-    //    foreach (var item in cart)
-    //    {
-    //        item.Item = await _context.Items.FindAsync(item.ItemId);
-    //    }
-
-    //    var addressId = HttpContext.Session.GetInt32("SelectedAddressId");
-    //    var address = addressId.HasValue ? await _context.Addresses.FindAsync(addressId.Value) : null;
-
-    //    var order = new Order
-    //    {
-    //        ClientId = clientId,
-    //        Items = cart.Select(c => new OrderItem
-    //        {
-    //            ItemId = c.ItemId,
-    //            Quantity = c.Quantity,
-    //            Price = (decimal)c.Item.Price
-    //        }).ToList(),
-    //        Status = "Placed",
-    //        Address = address ?? new Address()
-    //    };
-
-    //    _context.Orders.Add(order);
-    //    await _context.SaveChangesAsync();
-
-    //    HttpContext.Session.Remove("Cart");
-
-    //    return RedirectToAction("OrderPlaced", new { id = order.Id });
-    //}
-
     [HttpPost]
     public async Task<IActionResult> ConfirmPayment()
     {

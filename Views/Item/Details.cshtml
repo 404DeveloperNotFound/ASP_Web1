@@ -25,21 +25,6 @@
                     <strong>Serial Number:</strong> @Model?.SerialNumber <br />
                     <strong>Category:</strong> @Model?.Category?.Name <br />
                     <strong>Quantity in Stock:</strong> @Model?.Quantity <br />
-                    @* <strong>Clients:</strong> *@
-                    @* @if (Model.Clients != null && Model.Clients.Count > 0) *@
-                    @* { *@
-                    @*     int cnt = 0; *@
-                    @*     foreach (var c in Model.Clients) *@
-                    @*     { *@
-                    @*         @c.Username *@
-                    @*         @(cnt != Model.Clients.Count - 1 ? ", " : "") *@
-                    @*         cnt++; *@
-                    @*     } *@
-                    @* } *@
-                    @* else *@
-                    @* { *@
-                    @*     <span>None</span> *@
-                    @* } *@
                 </p>
 
                 <div class="mt-4">
@@ -54,8 +39,6 @@
                     {
                         <a asp-controller="Cart" asp-action="BuyNow" asp-route-id="@Model.Id" class="btn btn-warning">Buy Now</a>
                         <button type="button" class="btn btn-sm btn-primary add-to-cart-btn" data-id="@Model.Id">Add to Cart</button>
-
-                        @* <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@Model.Id" class="btn btn-primary">Add to Cart</a> *@
                     }
                 </div>
             </div>

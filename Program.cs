@@ -36,7 +36,7 @@ internal class Program
         builder.Services.AddScoped<CartService>();
         builder.Services.AddSession(options =>
         {
-            options.IdleTimeout = TimeSpan.FromHours(8); // optional timeout
+            options.IdleTimeout = TimeSpan.FromHours(8);
             options.Cookie.HttpOnly = true;
             options.Cookie.IsEssential = true;
         });

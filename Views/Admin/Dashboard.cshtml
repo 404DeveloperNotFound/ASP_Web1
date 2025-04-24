@@ -28,6 +28,7 @@
                     <th>Price</th>
                     <th>Serial</th>
                     <th>Category</th>
+                    <th>Stock</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -39,6 +40,7 @@
                         <td>$@item.Price.ToString("N2")</td>
                         <td>@item.SerialNumber</td>
                         <td>@item.Category?.Name</td>
+                        <td>@item.Quantity</td>
                         <td>
                             <a asp-controller="Item" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Edit</a>
                             <a asp-controller="Item" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>

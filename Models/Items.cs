@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WebApplication1.Interfaces;
 
 namespace WebApplication1.Models
@@ -9,7 +11,11 @@ namespace WebApplication1.Models
         public string Name {get;set;}
         public double Price {get;set;}
         public string ImageUrl {get;set;}
-        public string? SerialNumber {get;set;}
+
+        [Required] 
+        public string SerialNumber { get; set; }
+
+        public int Quantity { get; set; } 
         public int? CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }

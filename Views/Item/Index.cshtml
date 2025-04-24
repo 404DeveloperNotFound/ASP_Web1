@@ -60,7 +60,7 @@
             @foreach (var item in Model)
             {
                 <div class="col-md-3">
-                    <div class="card bg-dark text-white hover-card d-flex flex-column" style="min-height: 25rem">
+                    <div class="card bg-dark text-white hover-card d-flex flex-column @(item.Quantity <= 0 ? "out-of-stock" : "")" style="min-height: 25rem">
                         <div class="card-body d-flex flex-column">
                             <div class="image-container mb-4 d-flex justify-content-center align-items-center">
                                 <img src="@Url.Content(string.IsNullOrEmpty(item.ImageUrl) ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTK3c711Qnpwx8NGSS2NfnYxn-j2ckJV1Zc5A&s" : item.ImageUrl)"
@@ -72,21 +72,22 @@
                             <p class="card-text">
                                 <strong>Serial:</strong> @item?.SerialNumber <br />
                                 <strong>Category:</strong> @item?.Category?.Name <br />
-                                <strong>Clients:</strong>
-                                @if (item.Clients != null && item.Clients.Count > 0)
-                                {
-                                    int cnt = 0;
-                                    foreach (var i in item.Clients)
-                                    {
-                                        @i.Username
-                                        @(cnt != item.Clients.Count - 1 ? ", " : "")
-                                        cnt++;
-                                    }
-                                }
-                                else
-                                {
-                                    <span>None</span>
-                                }
+                                <strong>Quantity in Stock:</strong> @item?.Quantity <br />
+                                @* <strong>Clients:</strong> *@
+                                @* @if (item.Clients != null && item.Clients.Count > 0) *@
+                                @* { *@
+                                @*     int cnt = 0; *@
+                                @*     foreach (var i in item.Clients) *@
+                                @*     { *@
+                                @*         @i.Username *@
+                                @*         @(cnt != item.Clients.Count - 1 ? ", " : "") *@
+                                @*         cnt++; *@
+                                @*     } *@
+                                @* } *@
+                                @* else *@
+                                @* { *@
+                                @*     <span>None</span> *@
+                                @* } *@
                             </p>
                             <div class="mt-auto">
                                 @if (User.IsInRole("Admin"))
@@ -236,4 +237,29 @@
         border-color: #202020;
         color: #666;
     }
+
+    .out-of-stock {
+        opacity: 0.5;
+        pointer-events: none;
+        position: relative;
+    }
+
+    .out-of-stock::after {
+        content: "Out of Stock";
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: transparent;
+        font-size:16px;
+        color: rgba(255, 0, 0, 0.9);
+        font-weight: 800;
+        font-size: 28spx;
+        padding: 0.25rem 0.5rem;
+        border: 5px solid rgba(255, 0, 0, 0.9);
+        border-radius: 5px;
+        z-index: 1;
+    }
+
+
 </style>

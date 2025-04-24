@@ -75,7 +75,7 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id","Name","Price", "ImageUrl", "CategoryId","SerialNumber")] Items item)
+        public async Task<IActionResult> Create([Bind("Id","Name","Price", "ImageUrl", "CategoryId","SerialNumber", "Quantity")] Items item)
         {
             if (!ModelState.IsValid)
             {
@@ -98,8 +98,17 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price", "ImageUrl", "CategoryId","SerialNumber")] Items item)
+        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price", "ImageUrl", "CategoryId","SerialNumber", "Quantity")] Items item)
         {
+            foreach (var kvp in ModelState)
+            {
+                var key = kvp.Key;
+                var errors = kvp.Value.Errors
+                                  .Select(e => e.ErrorMessage)
+                                  .ToArray();
+
+                Console.WriteLine($"{key}: {string.Join(", ", errors)}");
+            }
             if (ModelState.IsValid)
             {
                 var existingItem = await _context.Items.FindAsync(id);
@@ -112,10 +121,12 @@ namespace WebApplication1.Controllers
                 existingItem.Price = item.Price;
                 existingItem.CategoryId = item.CategoryId;
                 existingItem.ImageUrl = item.ImageUrl;
+                existingItem.Quantity = item.Quantity;
 
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index", "Admin");
             }
+            Console.WriteLine("ehhehe");
             return View(item);
         }
 

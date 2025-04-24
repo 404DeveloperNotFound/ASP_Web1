@@ -50,6 +50,10 @@ namespace WebApplication1.Data
                 .WithMany(c => c.Items)
                 .HasForeignKey(ci => ci.CartId);
 
+            modelBuilder.Entity<Items>()
+                .HasIndex(i => i.SerialNumber)
+                .IsUnique();
+
             modelBuilder.Entity<Client>().HasIndex(c => c.Email).IsUnique();
 
             modelBuilder.Entity<Client>().HasIndex(c => c.Username).IsUnique();

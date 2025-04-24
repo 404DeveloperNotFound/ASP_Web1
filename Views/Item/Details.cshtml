@@ -24,21 +24,22 @@
                 <p>
                     <strong>Serial Number:</strong> @Model?.SerialNumber <br />
                     <strong>Category:</strong> @Model?.Category?.Name <br />
-                    <strong>Clients:</strong>
-                    @if (Model.Clients != null && Model.Clients.Count > 0)
-                    {
-                        int cnt = 0;
-                        foreach (var c in Model.Clients)
-                        {
-                            @c.Username
-                            @(cnt != Model.Clients.Count - 1 ? ", " : "")
-                            cnt++;
-                        }
-                    }
-                    else
-                    {
-                        <span>None</span>
-                    }
+                    <strong>Quantity in Stock:</strong> @Model?.Quantity <br />
+                    @* <strong>Clients:</strong> *@
+                    @* @if (Model.Clients != null && Model.Clients.Count > 0) *@
+                    @* { *@
+                    @*     int cnt = 0; *@
+                    @*     foreach (var c in Model.Clients) *@
+                    @*     { *@
+                    @*         @c.Username *@
+                    @*         @(cnt != Model.Clients.Count - 1 ? ", " : "") *@
+                    @*         cnt++; *@
+                    @*     } *@
+                    @* } *@
+                    @* else *@
+                    @* { *@
+                    @*     <span>None</span> *@
+                    @* } *@
                 </p>
 
                 <div class="mt-4">

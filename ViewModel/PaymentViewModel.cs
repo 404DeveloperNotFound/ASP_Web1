@@ -1,10 +1,11 @@
-﻿using WebApplication1.Models;
+﻿using WebApplication1.DataTransferObjects;
+using WebApplication1.Models;
 
 namespace WebApplication1.ViewModel
 {
     public class PaymentViewModel
     {
-        public List<CartItem> CartItems { get; set; }
+        public List<CartItemDto> CartItems { get; set; }
         public decimal TotalAmount { get; set; }
     }
 

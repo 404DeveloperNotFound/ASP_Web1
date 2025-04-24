@@ -62,7 +62,8 @@ public class CartService
                 ItemId = ci.ItemId,
                 Name = ci.Item?.Name ?? "Unknown",
                 Quantity = ci.Quantity,
-                Price = ci.Price
+                Price = ci.Price,
+                MaxQuantity = ci.Item?.Quantity ?? 0
             }).ToList()
         };
     }

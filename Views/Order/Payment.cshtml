@@ -31,10 +31,10 @@
                             @foreach (var item in Model.CartItems)
                             {
                                 <tr>
-                                    <td>@item.Item.Name</td>
+                                    <td>@item.Name</td>
                                     <td>@item.Quantity</td>
-                                    <td>@item.Item.Price.ToString("C")</td>
-                                    <td>@((item.Quantity * item.Item.Price).ToString("C"))</td>
+                                    <td>@item.Price.ToString("C")</td>
+                                    <td>@((item.Quantity * item.Price).ToString("C"))</td>
                                 </tr>
                             }
                         }

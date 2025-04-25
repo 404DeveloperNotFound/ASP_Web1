@@ -12,14 +12,14 @@ namespace WebApplication1.Middlewares
 
         public BlacklistMiddleware(RequestDelegate next)
         {
-            //_context = context;
             _next = next;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            // it stops the infinite redirect to /Home/Blacklisted
-            if (context.Request.Path.StartsWithSegments("/Home/Blacklisted", StringComparison.OrdinalIgnoreCase))
+            // stops the infinite redirect to /Home/Blacklisted
+            if (context.Request.Path.StartsWithSegments("/Home/Blacklisted", StringComparison.OrdinalIgnoreCase) ||
+               context.Request.Path.StartsWithSegments("/Account/Logout", StringComparison.OrdinalIgnoreCase))
             {
                 await _next(context);
                 return;

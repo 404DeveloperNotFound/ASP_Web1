@@ -27,6 +27,13 @@ public class CartController : Controller
 
         if (existingItem != null)
         {
+            if (existingItem.Quantity >= item.Quantity)
+            {
+                return Json(new
+                {
+                    message = $"Cannot add more. Only {item.Quantity} available in stock"
+                });
+            }
             existingItem.Quantity++;
         }
         else
@@ -36,12 +43,13 @@ public class CartController : Controller
                 ItemId = id,
                 Name = item.Name,
                 Quantity = 1,
-                Price = (decimal)item.Price
+                Price = (decimal)item.Price,
+                MaxQuantity = item.Quantity
             });
         }
         HttpContext.Session.SetObject("Cart", sessionCart);
 
-        return Json(new { message = "Item added successfully" });
+        return Json(new { message = $"{item.Name} added successfully" });
     }
 
     public IActionResult RemoveFromCart(int id)
@@ -63,12 +71,17 @@ public class CartController : Controller
     {
         var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
         var item = sessionCart.Items.FirstOrDefault(i => i.ItemId == itemId);
+        var dbItem = _context.Items.Find(itemId);
 
-        if (item != null)
-        {
-            item.Quantity = Math.Max(1, quantity);
-            HttpContext.Session.SetObject("Cart", sessionCart);
-        }
+        if (item == null || dbItem == null) return NotFound();
+       
+        var newQuantity = Math.Min(quantity, dbItem.Quantity);
+        newQuantity = Math.Max(1, newQuantity); 
+        
+        item.Quantity = newQuantity;
+        item.MaxQuantity = dbItem.Quantity; 
+       
+        HttpContext.Session.SetObject("Cart", sessionCart);
 
         return RedirectToAction("Index");
     }

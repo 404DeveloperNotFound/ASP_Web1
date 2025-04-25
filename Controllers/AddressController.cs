@@ -70,7 +70,7 @@ namespace WebApplication1.Controllers
         {
             if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
             {
-                returnUrl = Url.Action("Payment", "Order"); // default fallback
+                returnUrl = Url.Action("Payment", "Order");
             }
 
             ViewBag.ReturnUrl = returnUrl;
@@ -80,8 +80,14 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public IActionResult Select(int addressId, string returnUrl)
+        public IActionResult Select(int addressId, string returnUrl = null)
         {
+            if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+            {
+                returnUrl = Url.Action("Payment", "Order");
+            }
+
+            ViewBag.ReturnUrl = returnUrl;
             HttpContext.Session.SetInt32("SelectedAddressId", addressId);
             return Redirect(returnUrl);
         }

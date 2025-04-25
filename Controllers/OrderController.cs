@@ -7,6 +7,7 @@ using WebApplication1.Data;
 using WebApplication1.Models;
 using IronPdf;
 using WebApplication1.ViewModel;
+using WebApplication1.DataTransferObjects;
 
 [Authorize]
 public class OrderController : Controller
@@ -29,12 +30,12 @@ public class OrderController : Controller
         var address = _context.Addresses.Find(addressId.Value);
         ViewBag.SelectedAddress = address;
 
-        var cart = HttpContext.Session.GetObject<List<CartItem>>("Cart");
-        var totalAmount = cart?.Sum(c => c.Quantity * c.Item.Price) ?? 0;
+        var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
 
+        var totalAmount = sessionCart.Items.Sum(c => c.Quantity * c.Price);
         return View(new PaymentViewModel
         {
-            CartItems = cart,
+            CartItems = sessionCart.Items,
             TotalAmount = (decimal)totalAmount
         });
     }
@@ -42,34 +43,52 @@ public class OrderController : Controller
     [HttpPost]
     public async Task<IActionResult> ConfirmPayment()
     {
-        var cart = HttpContext.Session.GetObject<List<CartItem>>("Cart");
+        var cart = HttpContext.Session.GetObject<SessionCart>("Cart");
         var clientIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (!int.TryParse(clientIdStr, out var clientId) || cart == null || !cart.Any())
+        if (!int.TryParse(clientIdStr, out var clientId) || cart == null || !cart.Items.Any())
         {
             return RedirectToAction("Index", "Cart");
         }
 
-        foreach (var item in cart)
+        // Stock availability
+        var itemIds = cart.Items.Select(c => c.ItemId).ToList();
+        var dbItems = await _context.Items
+            .Where(i => itemIds.Contains(i.Id))
+            .ToListAsync();
+
+        foreach (var cartItem in cart.Items)
         {
-            item.Item = await _context.Items.FindAsync(item.ItemId);
+            var dbItem = dbItems.FirstOrDefault(i => i.Id == cartItem.ItemId);
+            if (dbItem == null || dbItem.Quantity < cartItem.Quantity)
+            {
+                return BadRequest($"Insufficient stock for {cartItem?.Name ?? "item"}");
+            }
         }
 
+        // order creation
         var addressId = HttpContext.Session.GetInt32("SelectedAddressId");
         var address = addressId.HasValue ? await _context.Addresses.FindAsync(addressId.Value) : null;
 
         var order = new Order
         {
             ClientId = clientId,
-            Items = cart.Select(c => new OrderItem
+            Items = cart.Items.Select(c => new OrderItem
             {
                 ItemId = c.ItemId,
                 Quantity = c.Quantity,
-                Price = (decimal)c.Item.Price
+                Price = (decimal)c.Price
             }).ToList(),
             Status = "Placed",
             Address = address ?? new Address()
         };
+
+        // Update quantity / stock
+        foreach (var cartItem in cart.Items)
+        {
+            var dbItem = dbItems.First(i => i.Id == cartItem.ItemId);
+            dbItem.Quantity -= cartItem.Quantity;
+        }
 
         _context.Orders.Add(order);
         await _context.SaveChangesAsync();

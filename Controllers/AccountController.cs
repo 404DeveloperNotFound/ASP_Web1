@@ -138,8 +138,8 @@ namespace WebApplication1.Controllers
                 principal,
                 new AuthenticationProperties
                 {
-                    IsPersistent = model.RememberMe,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
                 });
             
             var cart = await _cartService.LoadCartFromDbAsync(user.Id.ToString());

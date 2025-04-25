@@ -37,6 +37,14 @@ namespace WebApplication1.Controllers
             ViewBag.ViewType = "Users";
             return View("Dashboard", users);
         }
+        
+        public async Task<IActionResult> ViewAdmins()
+        {
+            var admins = await _context.Clients.Where(u => u.Role == "Admin").ToListAsync();
+            ViewBag.ViewType = "Admins";
+            return View("Dashboard", admins);
+        }
+
 
         public async Task<IActionResult> PromoteToAdmin(int id)
         {

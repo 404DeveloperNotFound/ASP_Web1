@@ -33,7 +33,10 @@
                                 <form method="post" asp-action="UpdateQuantity" asp-controller="Cart">
                                     <input type="hidden" name="itemId" value="@item.ItemId" />
                                     <input type="hidden" name="quantity" value="@(item.Quantity - 1)" />
-                                    <button type="submit" class="btn btn-sm btn-outline-light">-</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-light"
+                                    @(item.Quantity <= 1 ? "disabled" : "")>
+                                        -
+                                    </button>
                                 </form>
 
                                 <span class="px-2">@item.Quantity</span>
@@ -41,7 +44,10 @@
                                 <form method="post" asp-action="UpdateQuantity" asp-controller="Cart">
                                     <input type="hidden" name="itemId" value="@item.ItemId" />
                                     <input type="hidden" name="quantity" value="@(item.Quantity + 1)" />
-                                    <button type="submit" class="btn btn-sm btn-outline-light">+</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-light"
+                                    @(item.Quantity >= item.MaxQuantity ? "disabled" : "")>
+                                        +
+                                    </button>
                                 </form>
                             </div>
                         </td>
@@ -51,7 +57,9 @@
                 }
             </tbody>
         </table>
-
-        <a href="/Order/Payment" class="btn btn-success">Proceed to Payment</a>
+        <div class="d-flex justify-content-between mb-3 mt-5">
+            <a href="/Order/Payment" class="btn btn-success">Proceed to Payment</a>
+            <h4>Total: @Model.Sum(item => item.Price * item.Quantity).ToString("C")</h4>
+        </div>
     }
 </div>

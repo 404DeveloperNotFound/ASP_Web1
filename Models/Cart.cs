@@ -3,7 +3,7 @@
 public class Cart
 {
     public int Id { get; set; }
-    public int UserId { get; set; } // Match type with Client.Id (int)
+    public int UserId { get; set; } 
     public Client User { get; set; }
     public List<CartItem> Items { get; set; } = new();
 }
@@ -11,7 +11,7 @@ public class Cart
 public class CartItem
 {
     public int Id { get; set; }
-    public int CartId { get; set; } // Foreign key to Cart
+    public int CartId { get; set; }
     public Cart Cart { get; set; }
     public int ItemId { get; set; }
     public Items Item { get; set; }

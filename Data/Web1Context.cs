@@ -54,6 +54,10 @@ namespace WebApplication1.Data
                 .HasIndex(i => i.SerialNumber)
                 .IsUnique();
 
+            modelBuilder.Entity<Items>()
+                   .Property(p => p.RowVersion)
+                   .IsRowVersion()
+                   .ValueGeneratedOnAddOrUpdate();
             modelBuilder.Entity<Client>().HasIndex(c => c.Email).IsUnique();
 
             modelBuilder.Entity<Client>().HasIndex(c => c.Username).IsUnique();

@@ -1,7 +1,8 @@
-﻿@{
+﻿@model WebApplication1.ViewModel.PaymentViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
     ViewData["Title"] = "Payment";
 }
-
 <div class="container">
 
 <h2 class="text-center my-4">Complete Your Payment</h2>
@@ -56,25 +57,37 @@
     </div>
 
     <!-- Payment Method -->
-    <div class="payment-method w-50 text-black">
-        <h4>Payment Method</h4>
-        <form asp-controller="Order" asp-action="ConfirmPayment" method="post">
-            <div class="mb-3">
-                <label for="creditCard" class="form-label">Credit Card Number</label>
-                <input type="text" class="form-control" id="creditCard" placeholder="Enter card number" required>
-            </div>
-            <div class="mb-3">
-                <label for="expiryDate" class="form-label">Expiry Date</label>
-                <input type="month" class="form-control" id="expiryDate" required>
-            </div>
-            <div class="mb-3">
-                <label for="cvv" class="form-label">CVV</label>
-                <input type="text" class="form-control" id="cvv" placeholder="Enter CVV" required>
-            </div>
+        <div class="payment-method w-50 text-black">
+            <h4>Payment Method</h4>
 
-            <button type="submit" class="btn btn-success btn-block">Confirm Payment</button>
-        </form>
-    </div>
+            <!-- validation summary for model‐level errors -->
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <form asp-action="ConfirmPayment" method="post">
+                <div class="mb-3">
+                    <label asp-for="CreditCardNumber" class="form-label"></label>
+                    <input asp-for="CreditCardNumber" class="form-control" />
+                    <span asp-validation-for="CreditCardNumber" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ExpiryDate" class="form-label"></label>
+                    <!-- explicitly render a month picker -->
+                    <input asp-for="ExpiryDate" class="form-control" type="month" />
+                    <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CVV" class="form-label"></label>
+                    <input asp-for="CVV" class="form-control" />
+                    <span asp-validation-for="CVV" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">
+                    Confirm Payment
+                </button>
+            </form>
+        </div>
 </div>
 
 <div class="mt-3 text-center">
@@ -82,6 +95,9 @@
 </div>
 
 </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
 <style>
         .order-summary, .shipping-address, .payment-method {
             border: 1px solid #ddd;

@@ -144,23 +144,23 @@
     </div>
 }
 
-<script>
-    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const itemId = this.getAttribute('data-id');
+@* <script> *@
+@*     document.querySelectorAll('.add-to-cart-btn').forEach(btn => { *@
+@*         btn.addEventListener('click', function () { *@
+@*             const itemId = this.getAttribute('data-id'); *@
 
-            fetch(`/Cart/AddToCart/${itemId}`)
-                .then(response => response.json())
-                .then(data => {
-                    showToast(data.message);
-                })
-                .catch(error => {
-                    showToast("An error occurred while adding the item.");
-                    console.error("Error:", error);
-                });
-        });
-    });
-</script>
+@*             fetch(`/Cart/AddToCart/${itemId}`) *@
+@*                 .then(response => response.json()) *@
+@*                 .then(data => { *@
+@*                     showToast(data.message,data.IsError); *@
+@*                 }) *@
+@*                 .catch(error => { *@
+@*                     showToast("An error occurred while adding the item."); *@
+@*                     console.error("Error:", error); *@
+@*                 }); *@
+@*         }); *@
+@*     }); *@
+@* </script> *@
 
 <style>
     .image-container {

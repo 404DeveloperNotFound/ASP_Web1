@@ -8,6 +8,7 @@ using WebApplication1.Models;
 using IronPdf;
 using WebApplication1.ViewModel;
 using WebApplication1.DataTransferObjects;
+using WebApplication1.Migrations;
 
 [Authorize]
 public class OrderController : Controller
@@ -41,9 +42,16 @@ public class OrderController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> ConfirmPayment()
+    public async Task<IActionResult> ConfirmPayment(PaymentViewModel model)
     {
         var cart = HttpContext.Session.GetObject<SessionCart>("Cart");
+        model.CartItems = cart?.Items;
+        model.TotalAmount = cart.Items.Sum(i => i.Quantity * i.Price);
+
+        if (!ModelState.IsValid)
+        {
+            return View("Payment", model);
+        }
         var clientIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (!int.TryParse(clientIdStr, out var clientId) || cart == null || !cart.Items.Any())
@@ -91,7 +99,17 @@ public class OrderController : Controller
         }
 
         _context.Orders.Add(order);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();  // ← may throw DbUpdateConcurrencyException
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // someone else just modified one of these rows
+            TempData["ErrorMessage"] = 
+                  "Sorry — one of the items in your cart just sold out before we could complete your order. Please review your cart.";
+            return RedirectToAction("Index", "Cart");
+        }
 
         HttpContext.Session.Remove("Cart");
 

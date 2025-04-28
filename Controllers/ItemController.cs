@@ -77,6 +77,16 @@ namespace WebApplication1.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Id","Name","Price", "ImageUrl", "CategoryId","SerialNumber", "Quantity")] Items item)
         {
+            ModelState.Remove("RowVersion");
+            foreach (var entry in ModelState)
+            {
+                var key = entry.Key;
+                var errors = entry.Value.Errors.Select(e => e.ErrorMessage).ToList();
+                if (errors.Any())
+                {
+                    Console.WriteLine($"Key: {key}, Errors: {string.Join(", ", errors)}");
+                }
+            }
             if (!ModelState.IsValid)
             {
                 return View(item); 
@@ -98,8 +108,15 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price", "ImageUrl", "CategoryId","SerialNumber", "Quantity")] Items item)
+        public async Task<IActionResult> Edit(int id, [Bind("Id","Name","Price", "ImageUrl", "CategoryId","SerialNumber", "Quantity", "RowVersion")] Items item)
         {
+            if (id != item.Id) return NotFound();
+
+            // Handle concurrency
+            var existItem = await _context.Items.FindAsync(id);
+            _context.Entry(existItem).OriginalValues["RowVersion"] = item.RowVersion;
+
+            ModelState.Remove("RowVersion");
             foreach (var kvp in ModelState)
             {
                 var key = kvp.Key;

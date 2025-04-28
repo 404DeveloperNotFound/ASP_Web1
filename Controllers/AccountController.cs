@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WebApplication1.Data;
 using WebApplication1.DataTransferObjects;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
@@ -23,13 +24,19 @@ namespace WebApplication1.Controllers
 
         // GET: /Account/Register
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Home");
+            }
             return View();
         }
 
         // POST: /Account/Register
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
@@ -96,13 +103,19 @@ namespace WebApplication1.Controllers
 
         // GET: /Account/Login
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Home");
+            }
             return View();
         }
 
         // POST: /Account/Login
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
@@ -157,6 +170,7 @@ namespace WebApplication1.Controllers
             if (userId != null)
             {
                 var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart");
+                Console.WriteLine(sessionCart);
                 if (sessionCart != null)
                 {
                     await _cartService.SaveCartToDbAsync(userId, sessionCart);

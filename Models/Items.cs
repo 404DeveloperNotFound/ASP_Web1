@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WebApplication1.Interfaces;
@@ -15,7 +16,12 @@ namespace WebApplication1.Models
         [Required] 
         public string SerialNumber { get; set; }
 
-        public int Quantity { get; set; } 
+        public int Quantity { get; set; }
+        
+        [Timestamp]
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [ConcurrencyCheck] 
+        public byte[] RowVersion { get; set; } // enables optimistic concurrency
         public int? CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }

@@ -53,10 +53,10 @@
             fetch(`/Cart/AddToCart/${itemId}`)
                 .then(response => response.json())
                 .then(data => {
-                    alert(data.message);
+                    showToast(data.message);
                 })
                 .catch(error => {
-                    alert("An error occurred while adding the item.");
+                    showToast("An error occurred while adding the item.");
                     console.error("Error:", error);
                 });
         });

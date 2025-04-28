@@ -31,7 +31,8 @@ public class CartController : Controller
             {
                 return Json(new
                 {
-                    message = $"Cannot add more. Only {item.Quantity} available in stock"
+                    message = $"Cannot add more. Only {item.Quantity} available in stock",
+                    IsError = true
                 });
             }
             existingItem.Quantity++;
@@ -49,7 +50,7 @@ public class CartController : Controller
         }
         HttpContext.Session.SetObject("Cart", sessionCart);
 
-        return Json(new { message = $"{item.Name} added successfully" });
+        return Json(new { message = $"{item.Name} added successfully", IsError = false });
     }
 
     public IActionResult RemoveFromCart(int id)

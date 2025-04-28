@@ -12,38 +12,52 @@ const ValidateCreateForm = (e) => {
         e.preventDefault();
     }
 }
-function showToast(message, isError = false) {
-    const toastEl = document.getElementById('toastMessage');
-    const toastBody = document.getElementById('toastBody');
+document.addEventListener('DOMContentLoaded', function () {
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "3000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+        
+    };
 
-    toastBody.innerText = message;
-
-    // Change color for success/error
-    toastEl.classList.remove('text-bg-success', 'text-bg-danger');
-    toastEl.classList.add(isError ? 'text-bg-danger' : 'text-bg-success');
-
-    const toast = new bootstrap.Toast(toastEl);
-    toast.show();
-}
-
-
-let form = document.getElementById("create_form").addEventListener("submit", ValidateCreateForm);
-const AddedToCart = () => {
+    // Add event listener to add-to-cart buttons
     document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            e.preventDefault(); // ⛔ stop any default behavior
-
+        btn.addEventListener('click', function () {
             const itemId = this.getAttribute('data-id');
 
             fetch(`/Cart/AddToCart/${itemId}`)
                 .then(response => response.json())
                 .then(data => {
-                    alert(data.message); // ✅ show success message
+                    showToast(data.message, data.isError);
                 })
                 .catch(error => {
-                    alert("An error occurred while adding the item.");
+                    showToast("An error occurred while adding the item.", true);
                     console.error("Error:", error);
                 });
         });
     });
-};
+});
+
+// showToast function for showing notifications
+function showToast(message, isError = false) {
+    if (isError) {
+        toastr.error(message);
+    } else {
+        toastr.success(message);
+    }
+}
+
+
+let form = document.getElementById("create_form").addEventListener("submit", ValidateCreateForm);

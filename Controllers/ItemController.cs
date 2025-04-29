@@ -30,8 +30,7 @@ namespace WebApplication1.Controllers
             ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
 
             IQueryable<Items> items = _context.Items
-                .Include(i => i.Category)
-                .Include(i => i.Clients);
+                .Include(i => i.Category);
 
             // Filtering
             if (!string.IsNullOrEmpty(search))

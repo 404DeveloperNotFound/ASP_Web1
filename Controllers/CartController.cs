@@ -92,13 +92,40 @@ public class CartController : Controller
         var item = _context.Items.FirstOrDefault(i => i.Id == id);
         if (item == null) return NotFound();
 
-        var sessionCart = new SessionCart
+        var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart");
+
+        if(sessionCart == null)
         {
-            Items = new List<CartItemDto>
+            sessionCart = new SessionCart
             {
-                new CartItemDto { ItemId = id, Name = item.Name, Quantity = 1, Price = (decimal)item.Price }
+                Items = new List<CartItemDto>
+                {
+                    new CartItemDto { ItemId = id, Name = item.Name, Quantity = 1, Price = (decimal)item.Price, MaxQuantity = item.Quantity }
+                }
+            };
+        }
+        else
+        {
+            var existingItem = sessionCart.Items.FirstOrDefault(i => i.ItemId == id);
+            if(existingItem != null)
+            {
+                if (existingItem.Quantity < item.Quantity)
+                {
+                    existingItem.Quantity++;
+                }
             }
-        };
+            else
+            {
+                sessionCart.Items.Add(new CartItemDto
+                {
+                    ItemId = id,
+                    Name = item.Name,
+                    Quantity = 1,
+                    Price = (decimal)item.Price,
+                    MaxQuantity = item.Quantity
+                });
+            }
+        }
 
         HttpContext.Session.SetObject("Cart", sessionCart);
         return RedirectToAction("Payment", "Order");

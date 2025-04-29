@@ -4,9 +4,11 @@ using WebApplication1.Data;
 using WebApplication1.Models;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly Web1Context _context;
@@ -24,7 +26,6 @@ namespace WebApplication1.Controllers
         {
             var items = await _context.Items
                 .Include(i => i.Category)
-                .Include(i=>i.Clients)
                 .ToListAsync();
 
             ViewBag.ViewType = "Items";

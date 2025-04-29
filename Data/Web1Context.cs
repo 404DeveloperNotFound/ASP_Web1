@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data
@@ -13,9 +11,6 @@ namespace WebApplication1.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<Items>().HasData(
-            //    new Items { Id = 7, Name = "Hehe Product", Price = 200, SerialNumberId = 3 });
-
   
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Electronics" },
@@ -73,6 +68,5 @@ namespace WebApplication1.Data
         public DbSet<Client> Clients { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
-        //public DbSet<ItemClient> ItemClients { get; set; }
     }
 }

@@ -11,9 +11,13 @@
         @foreach (var address in Model)
         {
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="addressId" value="@address.Id" />
+                <input class="form-check-input" type="radio" name="addressId" value="@address.Id" @(address.IsDefault ? "checked" : "") />
                 <label class="form-check-label">
                     @address.StreetAddress, @address.City, @address.State, @address.Country - @address.PostalCode
+                    @if (address.IsDefault)
+                    {
+                        <span class="badge bg-primary">Default</span>
+                    }
                 </label>
             </div>
         }

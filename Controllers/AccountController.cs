@@ -91,7 +91,7 @@ namespace WebApplication1.Controllers
                 principal,
                 new AuthenticationProperties
                 {
-                    IsPersistent = false, 
+                    IsPersistent = true, 
                     ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
                 });
 

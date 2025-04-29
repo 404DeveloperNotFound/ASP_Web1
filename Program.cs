@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Middlewares;
@@ -56,7 +55,6 @@ internal class Program
         app.UseStaticFiles();
         
         app.UseRouting();
-
         app.UseAuthentication();
         app.UseSession();
         app.UseMiddleware<BlacklistMiddleware>();

@@ -95,13 +95,13 @@ public class OrderController : Controller
         foreach (var cartItem in cart.Items)
         {
             var dbItem = dbItems.First(i => i.Id == cartItem.ItemId);
-            dbItem.Quantity -= cartItem.Quantity;
+            dbItem.Quantity -= cartItem.Quantity; 
         }
 
         _context.Orders.Add(order);
         try
         {
-            await _context.SaveChangesAsync();  // ← may throw DbUpdateConcurrencyException
+            await _context.SaveChangesAsync();  // might throw DbUpdateConcurrencyException
         }
         catch (DbUpdateConcurrencyException)
         {

@@ -1,79 +1,99 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.Data;
-using WebApplication1.Models;
-using System.Threading.Tasks;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using WebApplication1.Interfaces;
 
-namespace WebApplication1.Controllers
+namespace WebApplication1.Controllers;
+
+[Authorize(Roles = "Admin")]
+public class AdminController : Controller
 {
-    public class AdminController : Controller
+    private readonly IAdminService _adminService;
+
+    public AdminController(IAdminService adminService)
     {
-        private readonly Web1Context _context;
+        _adminService = adminService;
+    }
 
-        public AdminController(Web1Context context)
-        {
-            _context = context;
-        }
+    public IActionResult Index() => RedirectToAction("ManageItems");
 
-        public async Task<IActionResult> Index()
+    public async Task<IActionResult> ManageItems()
+    {
+        try
         {
-            return RedirectToAction("ManageItems");
-        }
-        public async Task<IActionResult> ManageItems()
-        {
-            var items = await _context.Items
-                .Include(i => i.Category)
-                .Include(i=>i.Clients)
-                .ToListAsync();
-
+            var items = await _adminService.GetAllItemsAsync();
             ViewBag.ViewType = "Items";
             return View("Dashboard", items);
         }
-
-        public async Task<IActionResult> ManageUsers()
+        catch (Exception ex)
         {
-            var users = await _context.Clients.Where(u => u.Role != "Admin").ToListAsync();
+            return BadRequest(ex.Message);
+        }
+    }
+
+    public async Task<IActionResult> ManageUsers()
+    {
+        try
+        {
+            var users = await _adminService.GetUsersAsync();
             ViewBag.ViewType = "Users";
             return View("Dashboard", users);
         }
-        
-        public async Task<IActionResult> ViewAdmins()
+        catch (Exception ex)
         {
-            var admins = await _context.Clients.Where(u => u.Role == "Admin").ToListAsync();
+            return BadRequest(ex.Message);
+        }
+    }
+
+    public async Task<IActionResult> ViewAdmins()
+    {
+        try
+        {
+            var admins = await _adminService.GetAdminsAsync();
             ViewBag.ViewType = "Admins";
             return View("Dashboard", admins);
         }
-
-
-        public async Task<IActionResult> PromoteToAdmin(int id)
+        catch (Exception ex)
         {
-            var user = await _context.Clients.FindAsync(id);
-            if (user == null) return NotFound();
+            return BadRequest(ex.Message);
+        }
+    }
 
-            user.Role = "Admin";
-            await _context.SaveChangesAsync();
+    public async Task<IActionResult> PromoteToAdmin(int id)
+    {
+        try
+        {
+            await _adminService.PromoteUserToAdminAsync(id);
             return RedirectToAction("ManageUsers");
         }
-
-        public async Task<IActionResult> Blacklist(int id)
+        catch (Exception ex)
         {
-            var user = await _context.Clients.FindAsync(id);
-            if (user == null) return NotFound();
+            return NotFound(ex.Message);
+        }
+    }
 
-            user.IsBlocked = true;
-            await _context.SaveChangesAsync();
+    public async Task<IActionResult> Blacklist(int id)
+    {
+        try
+        {
+            await _adminService.BlacklistUserAsync(id);
             return RedirectToAction("ManageUsers");
         }
-        
-        public async Task<IActionResult> UnBlacklist(int id)
+        catch (Exception ex)
         {
-            var user = await _context.Clients.FindAsync(id);
-            if (user == null) return NotFound();
+            return NotFound(ex.Message);
+        }
+    }
 
-            user.IsBlocked = false;
-            await _context.SaveChangesAsync();
+    public async Task<IActionResult> UnBlacklist(int id)
+    {
+        try
+        {
+            await _adminService.UnBlacklistUserAsync(id);
             return RedirectToAction("ManageUsers");
+        }
+        catch (Exception ex)
+        {
+            return NotFound(ex.Message);
         }
     }
 }

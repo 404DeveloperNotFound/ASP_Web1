@@ -1,4 +1,4 @@
-﻿@model List<WebApplication1.Models.Order>
+﻿@model List<WebApplication1.DataTransferObjects.OrderDto>
 
 @{
     ViewData["Title"] = "My Orders";
@@ -33,7 +33,7 @@
                         <td>@foreach(var item in order.Items)
                             {
                                 <p>
-                                <a asp-action="Details" asp-controller="Item" asp-route-id="@item.Item.Id" class="text-white hover-underline">@item.Item.Name</a>
+                                <a asp-action="Details" asp-controller="Item" asp-route-id="@item.ItemId" class="text-white hover-underline">@item.ItemName</a>
                                 </p>
                             }
                         </td>

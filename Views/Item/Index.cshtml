@@ -1,4 +1,4 @@
-﻿@model PaginatedList<WebApplication1.Models.Items>
+﻿@model PaginatedList<WebApplication1.DataTransferObjects.ItemDto>
 @{
     ViewData["Title"] = "Index";
 }
@@ -75,7 +75,7 @@
                             <h5 class="card-subtitle mb-2 text-success">@item.Price.ToString("C")</h5>
                             <p class="card-text">
                                 <strong>Serial:</strong> @item?.SerialNumber <br />
-                                <strong>Category:</strong> @item?.Category?.Name <br />
+                                <strong>Category:</strong> @item?.CategoryName <br />
                                 <strong>Quantity in Stock:</strong> @item?.Quantity <br />
                             </p>
                             <div class="mt-auto">
@@ -143,24 +143,6 @@
         </nav>
     </div>
 }
-
-@* <script> *@
-@*     document.querySelectorAll('.add-to-cart-btn').forEach(btn => { *@
-@*         btn.addEventListener('click', function () { *@
-@*             const itemId = this.getAttribute('data-id'); *@
-
-@*             fetch(`/Cart/AddToCart/${itemId}`) *@
-@*                 .then(response => response.json()) *@
-@*                 .then(data => { *@
-@*                     showToast(data.message,data.IsError); *@
-@*                 }) *@
-@*                 .catch(error => { *@
-@*                     showToast("An error occurred while adding the item."); *@
-@*                     console.error("Error:", error); *@
-@*                 }); *@
-@*         }); *@
-@*     }); *@
-@* </script> *@
 
 <style>
     .image-container {

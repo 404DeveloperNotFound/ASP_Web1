@@ -1,27 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.Data;
-using WebApplication1.Models;
+using WebApplication1.Services;
+using WebApplication1.DataTransferObjects;
 using System.Security.Claims;
+using WebApplication1.Interfaces;
 
 namespace WebApplication1.Controllers
 {
     public class AddressController : Controller
     {
-        private readonly Web1Context _context;
+        private readonly IAddressService _addressService;
 
-        public AddressController(Web1Context context)
+        public AddressController(IAddressService addressService)
         {
-            _context = context;
+            _addressService = addressService;
         }
 
         private int GetCurrentUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
         public async Task<IActionResult> Index()
         {
-            var clientId = GetCurrentUserId();
-            var addresses = await _context.Addresses.Where(a => a.ClientId == clientId).ToListAsync();
-            return View(addresses);
+            try
+            {
+                var clientId = GetCurrentUserId();
+                var addresses = await _addressService.GetUserAddressesAsync(clientId);
+                return View(addresses);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error loading addresses.");
+                return View(new List<AddressDto>());
+            }
         }
 
         public IActionResult Create(string returnUrl = null)
@@ -31,65 +39,73 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("StreetAddress","City","State","Country","PostalCode")] Address address, string returnUrl)
+        public async Task<IActionResult> Create(AddressDto addressDto, string returnUrl)
         {
-            Console.WriteLine(GetCurrentUserId());
             if (!ModelState.IsValid)
-            {
-                return View(address);
-            }
+                return View(addressDto);
 
-            address.ClientId = GetCurrentUserId();
-            _context.Add(address);
-            await _context.SaveChangesAsync();
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            try
             {
-                return Redirect(returnUrl);
+                var clientId = GetCurrentUserId();
+                await _addressService.CreateAddressAsync(addressDto, clientId);
+                return RedirectToLocal(returnUrl);
             }
-            else
+            catch (Exception)
             {
-                return RedirectToAction("Index");
+                ModelState.AddModelError("", "Failed to add address.");
+                return View(addressDto);
             }
         }
 
         [HttpPost]
         public async Task<IActionResult> SetDefault(int id)
         {
-            var clientId = GetCurrentUserId();
-
-            var addresses = await _context.Addresses.Where(a => a.ClientId == clientId).ToListAsync();
-
-            foreach (var addr in addresses)
-                addr.IsDefault = (addr.Id == id);
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            try
+            {
+                var clientId = GetCurrentUserId();
+                await _addressService.SetDefaultAddressAsync(clientId, id);
+                return RedirectToAction("Index");
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Failed to set default address.");
+                return RedirectToAction("Index");
+            }
         }
 
         public IActionResult Select(string returnUrl = null)
         {
-            if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+            try
             {
-                returnUrl = Url.Action("Payment", "Order");
-            }
+                if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+                    returnUrl = Url.Action("Payment", "Order");
 
-            ViewBag.ReturnUrl = returnUrl;
-            var clientId = GetCurrentUserId();
-            var addresses = _context.Addresses.Where(a => a.ClientId == clientId).ToList();
-            return View(addresses);
+                ViewBag.ReturnUrl = returnUrl;
+
+                var clientId = GetCurrentUserId();
+                var addresses = _addressService.GetUserAddresses(clientId);
+                return View(addresses);
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Failed to load addresses.");
+                return View(new List<AddressDto>());
+            }
         }
 
         [HttpPost]
         public IActionResult Select(int addressId, string returnUrl = null)
         {
             if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
-            {
                 returnUrl = Url.Action("Payment", "Order");
-            }
 
-            ViewBag.ReturnUrl = returnUrl;
             HttpContext.Session.SetInt32("SelectedAddressId", addressId);
             return Redirect(returnUrl);
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            return Url.IsLocalUrl(returnUrl) ? Redirect(returnUrl) : RedirectToAction("Index");
         }
     }
 }

@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
+using WebApplication1.Interfaces;
 using WebApplication1.Middlewares;
+using WebApplication1.Services;
 
 internal class Program
 {
@@ -34,6 +35,13 @@ internal class Program
         builder.Services.AddControllersWithViews().AddNewtonsoftJson();
         builder.Services.AddDistributedMemoryCache(); // Enables in-memory storage for sessions
         builder.Services.AddScoped<CartService>();
+        builder.Services.AddScoped<IAccountService, AccountService>();
+        builder.Services.AddScoped<IAddressService, AddressService>();
+        builder.Services.AddScoped<IAdminService, AdminService>();
+        builder.Services.AddScoped<ICartAppService, CartAppService>();
+        builder.Services.AddScoped<IRoleRedirectService, RoleRedirectService>();
+        builder.Services.AddScoped<IItemService, ItemService>();
+        builder.Services.AddScoped<IOrderService, OrderService>();
         builder.Services.AddSession(options =>
         {
             options.IdleTimeout = TimeSpan.FromHours(8);
@@ -56,7 +64,6 @@ internal class Program
         app.UseStaticFiles();
         
         app.UseRouting();
-
         app.UseAuthentication();
         app.UseSession();
         app.UseMiddleware<BlacklistMiddleware>();

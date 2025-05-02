@@ -50,7 +50,10 @@
         </div>
         <!-- Shipping Address -->
         <div class="shipping-address text-black">
-            <h4>Shipping Address</h4>
+            <div class="d-flex justify-content-between"> 
+                <h4>Shipping Address</h4>
+                <a asp-controller="Address" asp-action="Select">Change</a>
+            </div>
             <p>@ViewBag.SelectedAddress?.StreetAddress</p>
             <p>@ViewBag.SelectedAddress?.City, @ViewBag.SelectedAddress?.State - @ViewBag.SelectedAddress?.PostalCode</p>
        </div>
@@ -60,7 +63,6 @@
         <div class="payment-method w-50 text-black">
             <h4>Payment Method</h4>
 
-            <!-- validation summary for model‐level errors -->
             <div asp-validation-summary="All" class="text-danger"></div>
 
             <form asp-action="ConfirmPayment" method="post">
@@ -72,7 +74,6 @@
 
                 <div class="mb-3">
                     <label asp-for="ExpiryDate" class="form-label"></label>
-                    <!-- explicitly render a month picker -->
                     <input asp-for="ExpiryDate" class="form-control" type="month" />
                     <span asp-validation-for="ExpiryDate" class="text-danger"></span>
                 </div>

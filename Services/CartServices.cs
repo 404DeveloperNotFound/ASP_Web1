@@ -29,7 +29,6 @@ public class CartService
 
         cart.Items.Clear();
 
-        // Add new items
         foreach (var dto in sessionCart.Items)
         {
             cart.Items.Add(new CartItem

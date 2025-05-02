@@ -1,4 +1,4 @@
-﻿@model WebApplication1.Models.Order
+﻿@model WebApplication1.DataTransferObjects.OrderDto
 
 @{
     ViewData["Title"] = "Order Placed";
@@ -24,7 +24,7 @@
         @foreach (var item in Model.Items)
         {
             <tr>
-                <td>@item.Item.Name</td>
+                <td>@item.ItemName</td>
                 <td>@item.Quantity</td>
                 <td>@item.Price.ToString("C")</td>
                 <td>@((item.Price * item.Quantity).ToString("C"))</td>

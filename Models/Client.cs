@@ -7,9 +7,5 @@ namespace WebApplication1.Models
         public List<Order>? Orders { get; set; }
 
         public List<Address> Addresses { get; set; } = new();
-
-        //public List<Items>? Items { get; set; }
-
-        //public List<ItemClient>? ItemClients { get; set; }
     }
 }

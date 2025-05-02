@@ -1,134 +1,65 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
-using WebApplication1.DataTransferObjects;
+using WebApplication1.Interfaces;
 
 public class CartController : Controller
 {
-    private readonly Web1Context _context;
+    private readonly ICartAppService _cartAppService;
 
-    public CartController(Web1Context context)
+    public CartController(ICartAppService cartAppService)
     {
-        _context = context;
+        _cartAppService = cartAppService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
+        var sessionCart = await _cartAppService.GetSessionCartAsync(HttpContext);
         return View(sessionCart.Items);
     }
 
-    public IActionResult AddToCart(int id)
+    public async Task<IActionResult> AddToCart(int id)
     {
-        var item = _context.Items.Find(id);
-        if (item == null) return NotFound();
-
-        var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
-        var existingItem = sessionCart.Items.FirstOrDefault(i => i.ItemId == id);
-
-        if (existingItem != null)
+        try
         {
-            if (existingItem.Quantity >= item.Quantity)
-            {
-                return Json(new
-                {
-                    message = $"Cannot add more. Only {item.Quantity} available in stock",
-                    IsError = true
-                });
-            }
-            existingItem.Quantity++;
+            await _cartAppService.AddToCartAsync(id, HttpContext);
+            return Json(new { message = "Item added successfully", IsError = false });
         }
-        else
+        catch (Exception ex)
         {
-            sessionCart.Items.Add(new CartItemDto
-            {
-                ItemId = id,
-                Name = item.Name,
-                Quantity = 1,
-                Price = (decimal)item.Price,
-                MaxQuantity = item.Quantity
-            });
+            return Json(new { message = ex.Message, IsError = true });
         }
-        HttpContext.Session.SetObject("Cart", sessionCart);
-
-        return Json(new { message = $"{item.Name} added successfully", IsError = false });
     }
 
-    public IActionResult RemoveFromCart(int id)
+    public async Task<IActionResult> RemoveFromCart(int id)
     {
-        var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
-
-        var itemToRemove = sessionCart.Items.FirstOrDefault(i => i.ItemId == id);
-        if (itemToRemove != null)
-        {
-            sessionCart.Items.Remove(itemToRemove);
-            HttpContext.Session.SetObject("Cart", sessionCart);
-        }
-
+        await _cartAppService.RemoveFromCartAsync(id, HttpContext);
         return RedirectToAction("Index");
     }
 
     [HttpPost]
-    public IActionResult UpdateQuantity(int itemId, int quantity)
+    public async Task<IActionResult> UpdateQuantity(int itemId, int quantity)
     {
-        var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
-        var item = sessionCart.Items.FirstOrDefault(i => i.ItemId == itemId);
-        var dbItem = _context.Items.Find(itemId);
-
-        if (item == null || dbItem == null) return NotFound();
-       
-        var newQuantity = Math.Min(quantity, dbItem.Quantity);
-        newQuantity = Math.Max(1, newQuantity); 
-        
-        item.Quantity = newQuantity;
-        item.MaxQuantity = dbItem.Quantity; 
-       
-        HttpContext.Session.SetObject("Cart", sessionCart);
-
-        return RedirectToAction("Index");
+        try
+        {
+            await _cartAppService.UpdateQuantityAsync(itemId, quantity, HttpContext);
+            return RedirectToAction("Index");
+        }
+        catch
+        {
+            return NotFound();
+        }
     }
 
-    public IActionResult BuyNow(int id)
+    public async Task<IActionResult> BuyNow(int id)
     {
-        var item = _context.Items.FirstOrDefault(i => i.Id == id);
-        if (item == null) return NotFound();
-
-        var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart");
-
-        if(sessionCart == null)
+        try
         {
-            sessionCart = new SessionCart
-            {
-                Items = new List<CartItemDto>
-                {
-                    new CartItemDto { ItemId = id, Name = item.Name, Quantity = 1, Price = (decimal)item.Price, MaxQuantity = item.Quantity }
-                }
-            };
+            await _cartAppService.PrepareBuyNowAsync(id, HttpContext);
+            return RedirectToAction("Payment", "Order");
         }
-        else
+        catch
         {
-            var existingItem = sessionCart.Items.FirstOrDefault(i => i.ItemId == id);
-            if(existingItem != null)
-            {
-                if (existingItem.Quantity < item.Quantity)
-                {
-                    existingItem.Quantity++;
-                }
-            }
-            else
-            {
-                sessionCart.Items.Add(new CartItemDto
-                {
-                    ItemId = id,
-                    Name = item.Name,
-                    Quantity = 1,
-                    Price = (decimal)item.Price,
-                    MaxQuantity = item.Quantity
-                });
-            }
+            return NotFound();
         }
-
-        HttpContext.Session.SetObject("Cart", sessionCart);
-        return RedirectToAction("Payment", "Order");
     }
 
     public IActionResult Checkout()

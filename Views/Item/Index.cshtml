@@ -1,4 +1,4 @@
-﻿@model PaginatedList<WebApplication1.Models.Items>
+﻿@model PaginatedList<WebApplication1.DataTransferObjects.ItemDto>
 @{
     ViewData["Title"] = "Index";
 }
@@ -75,7 +75,7 @@
                             <h5 class="card-subtitle mb-2 text-success">@item.Price.ToString("C")</h5>
                             <p class="card-text">
                                 <strong>Serial:</strong> @item?.SerialNumber <br />
-                                <strong>Category:</strong> @item?.Category?.Name <br />
+                                <strong>Category:</strong> @item?.CategoryName <br />
                                 <strong>Quantity in Stock:</strong> @item?.Quantity <br />
                             </p>
                             <div class="mt-auto">

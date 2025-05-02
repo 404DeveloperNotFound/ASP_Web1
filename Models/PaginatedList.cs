@@ -21,6 +21,7 @@ namespace WebApplication1.Models
             IQueryable<T> source, int pageIndex, int pageSize)
         {
             var count = await source.CountAsync();
+            Console.WriteLine(count);
             var items = await source.Skip(
                 (pageIndex - 1) * pageSize)
                 .Take(pageSize)

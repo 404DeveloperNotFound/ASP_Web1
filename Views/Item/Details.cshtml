@@ -1,5 +1,4 @@
-﻿@model WebApplication1.Models.Items
-
+﻿@model WebApplication1.DataTransferObjects.ItemDto;
 @{
     ViewData["Title"] = "Item Details";
 }
@@ -23,7 +22,7 @@
 
                 <p>
                     <strong>Serial Number:</strong> @Model?.SerialNumber <br />
-                    <strong>Category:</strong> @Model?.Category?.Name <br />
+                    <strong>Category:</strong> @Model?.CategoryName <br />
                     <strong>Quantity in Stock:</strong> @Model?.Quantity <br />
                 </p>
 

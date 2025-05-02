@@ -1,185 +1,158 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Models;
-using WebApplication1.ViewModels;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using WebApplication1.Data;
-using WebApplication1.DataTransferObjects;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using WebApplication1.AbstractClasses;
+using WebApplication1.DataTransferObjects;
+using WebApplication1.Interfaces;
+using WebApplication1.ViewModels;
 
-namespace WebApplication1.Controllers
+public class AccountController : Controller
 {
-    public class AccountController : Controller
+    private readonly IAccountService _accountService;
+    private readonly CartService _cartService;
+    private readonly ILogger<AccountController> _logger;
+
+    public AccountController(IAccountService accountService, CartService cartService, ILogger<AccountController> logger)
     {
-        private readonly Web1Context _context;
-        private readonly CartService _cartService;
-        public AccountController(Web1Context context, CartService cartService)
-        {
-            _context = context;
-            _cartService = cartService;
-        }
+        _accountService = accountService;
+        _cartService = cartService;
+        _logger = logger;
+    }
 
-        // GET: /Account/Register
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult Register()
-        {
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            return View();
-        }
+    [HttpGet, AllowAnonymous]
+    public IActionResult Register()
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToAction("Index", "Home");
 
-        // POST: /Account/Register
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
+        return View();
+    }
 
+    [HttpPost, AllowAnonymous]
+    public async Task<IActionResult> Register(RegisterViewModel model)
+    {
+        if (!ModelState.IsValid || model.Password != model.ConfirmPassword)
+        {
             if (model.Password != model.ConfirmPassword)
-            {
-                ModelState.AddModelError(string.Empty, "Passwords do not match.");
-                return View(model);
-            }
+                ModelState.AddModelError("", "Passwords do not match.");
 
-            if (_context.Clients.Any(u => u.Email == model.Email))
-            {
-                ModelState.AddModelError(string.Empty, "Email is already taken.");
-                return View(model);
-            }
-            if (_context.Clients.Any(u => u.Username == model.Username))
-            {
-                ModelState.AddModelError(string.Empty, "Username is already taken.");
-                return View(model);
-            }
+            return View(model);
+        }
 
-            var hashed = BCrypt.Net.BCrypt.HashPassword(model.Password);
+        try
+        {
+            var dto = new RegisterDto(model.Username, model.Email, model.Password, model.Role);
+            var user = await _accountService.RegisterAsync(dto);
 
-            // Create user 
-            var user = new Client
-            {
-                Username = model.Username,
-                Email = model.Email,
-                PasswordHash = hashed,
-                Role = model.Role ?? "Client" 
-            };
-
-            _context.Clients.Add(user);
-            await _context.SaveChangesAsync();
-
-            // Build the ClaimsPrincipal for cookie auth
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name,           user.Username),
-                new Claim(ClaimTypes.Email,          user.Email),
-                new Claim(ClaimTypes.Role,           user.Role)
-            };
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-
-            // Sign in (set cookie)
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal,
-                new AuthenticationProperties
-                {
-                    IsPersistent = true, 
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
-                });
+            var claims = BuildClaims(user);
+            await SignInAsync(claims);
 
             var sessionCart = await _cartService.LoadCartFromDbAsync(user.Id.ToString());
             HttpContext.Session.SetObject("Cart", sessionCart);
 
             return RedirectToAction("Index", "Home");
         }
-
-        // GET: /Account/Login
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult Login()
+        catch (InvalidOperationException ex)
         {
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            return View();
+            ModelState.AddModelError("", ex.Message);
+            return View(model);
         }
-
-        // POST: /Account/Login
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        catch (Exception ex)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            _logger.LogError(ex, "Error during registration");
+            return View("Error");
+        }
+    }
 
-            var user = await _context.Clients
-                                     .SingleOrDefaultAsync(u => u.Email == model.Email);
-            // user doesn't exist 
-            if (user == null)
-            {
-                ModelState.AddModelError("", "Invalid login attempt.");
-                return View(model);
-            }
+    [HttpGet, AllowAnonymous]
+    public IActionResult Login()
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToAction("Index", "Home");
 
-            if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
-            {
-                ModelState.AddModelError("", "Invalid login attempt.");
-                return View(model);
-            }
+        return View();
+    }
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name,           user.Username),
-                new Claim(ClaimTypes.Email,          user.Email),
-                new Claim(ClaimTypes.Role,           user.Role)
-            };
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+    [HttpPost, AllowAnonymous]
+    public async Task<IActionResult> Login(LoginViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal,
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
-                });
-            
+        try
+        {
+            var dto = new LoginDto(model.Email, model.Password);
+            var user = await _accountService.LoginAsync(dto);
+
+            var claims = BuildClaims(user);
+            await SignInAsync(claims);
+
             var cart = await _cartService.LoadCartFromDbAsync(user.Id.ToString());
             HttpContext.Session.SetObject("Cart", cart);
 
             return RedirectToAction("Index", "Home");
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            ModelState.AddModelError("", ex.Message);
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Login failed");
+            return View("Error");
+        }
+    }
 
-        // POST: /Account/Logout
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Logout()
+    {
+        try
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId != null)
             {
                 var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart");
-                Console.WriteLine(sessionCart);
                 if (sessionCart != null)
-                {
                     await _cartService.SaveCartToDbAsync(userId, sessionCart);
-                }
             }
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
-
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Logout failed");
+            return View("Error");
+        }
     }
-} 
+
+    private List<Claim> BuildClaims(AuthenticatedUserDto user)
+    {
+        return new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role)
+        };
+    }
+
+    private async Task SignInAsync(List<Claim> claims)
+    {
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            new AuthenticationProperties
+            {
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+            });
+    }
+}

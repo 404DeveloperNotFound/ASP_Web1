@@ -6,7 +6,7 @@ namespace WebApplication1.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
-{
+{ 
     private readonly IAdminService _adminService;
 
     public AdminController(IAdminService adminService)

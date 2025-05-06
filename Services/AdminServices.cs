@@ -4,14 +4,14 @@ using WebApplication1.DataTransferObjects;
 using WebApplication1.Interfaces;
 
 namespace WebApplication1.Services
-{
+{ 
     public class AdminService : IAdminService
     {
         private readonly Web1Context _context;
 
         public AdminService(Web1Context context)
         {
-            _context = context;
+            _context = context;  
         }
         public async Task<List<AdminItemDto>> GetAllItemsAsync()
         {

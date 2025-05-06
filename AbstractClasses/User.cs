@@ -8,7 +8,7 @@ namespace WebApplication1.AbstractClasses
         [Required]
         public string Username { get; set; }
         [Required]
-        [EmailAddress]
+        [EmailAddress] 
         public string Email { get; set; }
         [Required]
         public string PasswordHash { get; set; }

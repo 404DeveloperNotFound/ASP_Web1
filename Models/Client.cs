@@ -9,3 +9,4 @@ namespace WebApplication1.Models
         public List<Address> Addresses { get; set; } = new();
     }
 }
+ 

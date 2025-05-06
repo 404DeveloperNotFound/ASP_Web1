@@ -4,15 +4,15 @@ using WebApplication1.Interfaces;
 public class CartController : Controller
 {
     private readonly ICartAppService _cartAppService;
-
+     
     public CartController(ICartAppService cartAppService)
     {
         _cartAppService = cartAppService;
     }
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-        var sessionCart = await _cartAppService.GetSessionCartAsync(HttpContext);
+        var sessionCart = _cartAppService.GetSessionCart(HttpContext);
         return View(sessionCart.Items);
     }
 

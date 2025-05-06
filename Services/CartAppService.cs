@@ -12,8 +12,8 @@ namespace WebApplication1.Services
         {
             _context = context;
         }
-
-        public async Task<SessionCart> GetSessionCartAsync(HttpContext context)
+         
+        public SessionCart GetSessionCart(HttpContext context)
         {
             return context.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
         }

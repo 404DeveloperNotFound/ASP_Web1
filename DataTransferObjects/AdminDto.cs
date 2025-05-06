@@ -7,4 +7,4 @@
     string? CategoryName,
     int Quantity);
     public record AdminClientDto(int Id, string Username, string Email, string Role, bool IsBlocked);
-}
+} 

@@ -18,7 +18,7 @@ namespace WebApplication1.Controllers
         private int GetCurrentUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
         public async Task<IActionResult> Index()
-        {
+        { 
             try
             {
                 var clientId = GetCurrentUserId();
@@ -27,7 +27,7 @@ namespace WebApplication1.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Error loading addresses.");
+                ModelState.AddModelError("", "Error loading addresses."); 
                 return View(new List<AddressDto>());
             }
         }

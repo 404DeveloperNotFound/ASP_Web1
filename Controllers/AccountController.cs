@@ -29,7 +29,7 @@ public class AccountController : Controller
 
         return View();
     }
-
+     
     [HttpPost, AllowAnonymous]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {

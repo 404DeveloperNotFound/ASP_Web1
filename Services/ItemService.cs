@@ -12,7 +12,7 @@ namespace WebApplication1.Services
     {
         private readonly Web1Context _context;
         private const int DefaultPageSize = 10;
-
+         
         public ItemService(Web1Context context)
         {
             _context = context;

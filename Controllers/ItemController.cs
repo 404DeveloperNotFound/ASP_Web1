@@ -25,7 +25,6 @@ public class ItemController : Controller
         string? sortOrder,
         int? pageNumber)
     {
-        const int pageSize = 10;
         try
         {
             var parms = new ItemQueryParameters(
@@ -33,7 +32,7 @@ public class ItemController : Controller
                 categoryId,
                 sortOrder,
                 pageNumber ?? 1,
-                pageSize
+                PageSize
             );
 
             ViewData["CurrentSearch"] = search;
@@ -48,7 +47,7 @@ public class ItemController : Controller
         catch (Exception ex)
         {
             ModelState.AddModelError("", "Unable to load items.");
-            return View(new PaginatedList<ItemDto>(new List<ItemDto>(), 0, 1, pageSize));
+            return View(new PaginatedList<ItemDto>(new List<ItemDto>(), 0, 1, PageSize));
         }
     }
 

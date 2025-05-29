@@ -7,7 +7,7 @@ using WebApplication1.Interfaces;
 namespace WebApplication1.Services;
 
 public class AddressService : IAddressService
-{
+{ 
     private readonly Web1Context _context;
 
     public AddressService(Web1Context context)

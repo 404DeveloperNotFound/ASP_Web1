@@ -34,6 +34,16 @@ public class OrderController : Controller
                 TotalAmount = payment.TotalAmount
             });
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "No address selected for payment");
+            return RedirectToAction("Select", "Address", new { returnUrl = "/Order/Payment" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "Address not found for payment");
+            return RedirectToAction("Select", "Address", new { returnUrl = "/Order/Payment" });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error preparing payment");
@@ -46,43 +56,44 @@ public class OrderController : Controller
     {
         try
         {
-            var addressId = HttpContext.Session
-                                   .GetInt32("SelectedAddressId")
+            var addressId = HttpContext.Session.GetInt32("SelectedAddressId")
                            ?? throw new InvalidOperationException("No address selected.");
 
-            var address = await _context.Addresses
-                                        .FindAsync(addressId)
+            var address = await _context.Addresses.FindAsync(addressId)
                            ?? throw new KeyNotFoundException("Selected address not found.");
 
             var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
-            
             var cartItems = sessionCart.Items;
 
-            var dto = new ConfirmPaymentDto(
-                cartItems,
-                vm.TotalAmount,
-                address   
-            );
+            var dto = new ConfirmPaymentDto(cartItems, vm.TotalAmount, address);
 
             var orderId = await _orderService.ConfirmPaymentAsync(dto, HttpContext, User);
             return RedirectToAction("OrderPlaced", new { id = orderId });
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogWarning(ex, "Invalid operation during payment confirmation");
             ModelState.AddModelError("", ex.Message);
             return View("Payment", vm);
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
+            _logger.LogWarning(ex, "Unauthorized access during payment confirmation");
             return RedirectToAction("Login", "Account");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "Key not found during payment confirmation: {Message}", ex.Message);
+            ModelState.AddModelError("", ex.Message);
+            return View("Payment", vm);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Payment confirmation failed");
-            return RedirectToAction("Index", "Cart");
+            ModelState.AddModelError("", "An error occurred while processing your payment.");
+            return View("Payment", vm);
         }
     }
-
 
     public async Task<IActionResult> OrderPlaced(int id)
     {
@@ -91,8 +102,14 @@ public class OrderController : Controller
             var order = await _orderService.GetOrderAsync(id);
             return View(order);
         }
-        catch
+        catch (KeyNotFoundException ex)
         {
+            _logger.LogWarning(ex, "Order not found, ID: {Id}", id);
+            return NotFound($"Order {id} not found");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching order {Id}", id);
             return NotFound();
         }
     }
@@ -104,8 +121,14 @@ public class OrderController : Controller
             var orders = await _orderService.GetUserOrdersAsync(User);
             return View(orders);
         }
-        catch
+        catch (UnauthorizedAccessException ex)
         {
+            _logger.LogWarning(ex, "Unauthorized access to MyOrders");
+            return RedirectToAction("Login", "Account");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching user orders");
             return RedirectToAction("Index", "Home");
         }
     }
@@ -117,8 +140,14 @@ public class OrderController : Controller
             var pdfBytes = await _orderService.GenerateInvoicePdfAsync(id);
             return File(pdfBytes, "application/pdf", $"Invoice_Order_{id}.pdf");
         }
-        catch
+        catch (KeyNotFoundException ex)
         {
+            _logger.LogWarning(ex, "Order not found for invoice, ID: {Id}", id);
+            return NotFound($"Order {id} not found");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating invoice for order {Id}", id);
             return NotFound();
         }
     }

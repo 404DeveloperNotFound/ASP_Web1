@@ -65,11 +65,13 @@ internal class Program
         builder.Services.AddScoped<CartService>();
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IAddressService, AddressService>();
+        builder.Services.AddHttpClient();
         builder.Services.AddScoped<IAdminService, AdminService>();
         builder.Services.AddScoped<ICartAppService, CartAppService>();
         builder.Services.AddScoped<IRoleRedirectService, RoleRedirectService>();
         builder.Services.AddScoped<IItemService, ItemService>();
         builder.Services.AddScoped<IOrderService, OrderService>();
+        builder.Services.AddHostedService<RedisSyncBackgroundService>();
         // Redis services
         builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
         {

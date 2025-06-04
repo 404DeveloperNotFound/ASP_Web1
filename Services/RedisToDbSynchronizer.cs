@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
+using WebApplication1.Services;
 
 public class RedisToDbSynchronizer
 {
@@ -30,24 +31,22 @@ public class RedisToDbSynchronizer
 
     private async Task SyncProductsAsync()
     {
-        var productIds = await _redisService.GetAsync<string[]>("Item:list");
+        var productIds = await _redisService.GetAsync<string[]>("item:list");
         if (productIds == null) return;
 
         foreach (var idStr in productIds)
         {
             if (int.TryParse(idStr, out var productId))
             {
-                var redisProduct = await _redisService.GetAsync<Items>($"Item:{productId}");
+                var redisProduct = await _redisService.GetAsync<Items>($"item:{productId}");
                 if (redisProduct != null)
                 {
                     var dbProduct = await _dbContext.Items.FindAsync(productId);
                     if (dbProduct != null)
                     {
-                        // Update only certain fields if needed
                         dbProduct.Name = redisProduct.Name;
                         dbProduct.Price = redisProduct.Price;
                         //dbProduct.Description = redisProduct.Description;
-                        // Note: We don't sync stock here - that's handled separately
 
                         _dbContext.Items.Update(dbProduct);
                     }
@@ -59,7 +58,7 @@ public class RedisToDbSynchronizer
 
     private async Task SyncStockAsync()
     {
-        var productIds = await _redisService.GetAsync<string[]>("Item:list");
+        var productIds = await _redisService.GetAsync<string[]>("item:list");
         if (productIds == null) return;
 
         foreach (var idStr in productIds)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
+using WebApplication1.Services;
 
 public class RedisInitializer
 {
@@ -20,13 +21,13 @@ public class RedisInitializer
         // Store each product in Redis
         foreach (var product in products)
         {
-            await _redisService.SetAsync($"Item:{product.Id}", product);
+            await _redisService.SetAsync($"item:{product.Id}", product);
             await _redisService.SetAsync($"stock:{product.Id}", product.Quantity);
         }
 
         // Create product list index
         var productIds = products.Select(p => p.Id.ToString()).ToArray();
-        await _redisService.SetAsync("Item:list", productIds);
+        await _redisService.SetAsync("item:list", productIds);
 
         Console.WriteLine($"Initialized {products.Count} Items in Redis");
     }

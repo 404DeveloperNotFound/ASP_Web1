@@ -8,14 +8,30 @@ namespace WebApplication1.Services
     public class AdminService : IAdminService
     {
         private readonly Web1Context _context;
+        private readonly RedisService _redisService;
+        private readonly ILogger<AdminService> _logger;
+        private const int CacheExpiryMinutes = 30;
 
-        public AdminService(Web1Context context)
+        public AdminService(Web1Context context, RedisService redisService, ILogger<AdminService> logger)
         {
-            _context = context;  
+            _context = context;
+            _redisService = redisService;
+            _logger = logger;
         }
         public async Task<List<AdminItemDto>> GetAllItemsAsync()
         {
-            return await _context.Items
+            const string cacheKey = "admin:items";
+
+            // Try to get from cache
+            var cachedItems = await _redisService.GetAsync<List<AdminItemDto>>(cacheKey);
+            if (cachedItems != null)
+            {
+                _logger.LogDebug("Cache hit for {CacheKey}", cacheKey);
+                return cachedItems;
+            }
+
+            // Fetch from database
+            var items = await _context.Items
                 .Include(i => i.Category)
                 .Select(i => new AdminItemDto(
                     i.Id,
@@ -26,6 +42,12 @@ namespace WebApplication1.Services
                     i.Quantity
                 ))
                 .ToListAsync();
+
+            // Cache the result
+            await _redisService.SetAsync(cacheKey, items, TimeSpan.FromMinutes(CacheExpiryMinutes));
+            _logger.LogDebug("Cached items for {CacheKey}", cacheKey);
+
+            return items;
         }
 
         public async Task<List<AdminClientDto>> GetUsersAsync()
@@ -39,7 +61,7 @@ namespace WebApplication1.Services
         public async Task<List<AdminClientDto>> GetAdminsAsync()
         {
             return await _context.Clients
-                .Where(u => u.Role == "Admin")
+                .Where(u => u.Role == "Admin") 
                 .Select(u => new AdminClientDto(u.Id, u.Username, u.Email, u.Role, u.IsBlocked))
                 .ToListAsync();
         }

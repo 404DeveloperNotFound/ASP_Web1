@@ -6,12 +6,14 @@ namespace WebApplication1.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
-{ 
+{
     private readonly IAdminService _adminService;
+    private readonly ILogger<AdminController> _logger;
 
-    public AdminController(IAdminService adminService)
+    public AdminController(IAdminService adminService, ILogger<AdminController> logger)
     {
         _adminService = adminService;
+        _logger = logger;
     }
 
     public IActionResult Index() => RedirectToAction("ManageItems");
@@ -26,7 +28,8 @@ public class AdminController : Controller
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            _logger.LogError(ex, "Error fetching items for ManageItems");
+            return BadRequest($"Failed to load items: {ex.Message}");
         }
     }
 
@@ -40,7 +43,8 @@ public class AdminController : Controller
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            _logger.LogError(ex, "Error fetching users for ManageUsers");
+            return BadRequest($"Failed to load users: {ex.Message}");
         }
     }
 
@@ -54,7 +58,8 @@ public class AdminController : Controller
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            _logger.LogError(ex, "Error fetching admins for ViewAdmins");
+            return BadRequest($"Failed to load admins: {ex.Message}");
         }
     }
 
@@ -65,9 +70,15 @@ public class AdminController : Controller
             await _adminService.PromoteUserToAdminAsync(id);
             return RedirectToAction("ManageUsers");
         }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "User not found for PromoteToAdmin, ID: {Id}", id);
+            return NotFound($"User not found: {ex.Message}");
+        }
         catch (Exception ex)
         {
-            return NotFound(ex.Message);
+            _logger.LogError(ex, "Error promoting user to admin, ID: {Id}", id);
+            return BadRequest($"Failed to promote user: {ex.Message}");
         }
     }
 
@@ -78,9 +89,15 @@ public class AdminController : Controller
             await _adminService.BlacklistUserAsync(id);
             return RedirectToAction("ManageUsers");
         }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "User not found for Blacklist, ID: {Id}", id);
+            return NotFound($"User not found: {ex.Message}");
+        }
         catch (Exception ex)
         {
-            return NotFound(ex.Message);
+            _logger.LogError(ex, "Error blacklisting user, ID: {Id}", id);
+            return BadRequest($"Failed to blacklist user: {ex.Message}");
         }
     }
 
@@ -91,9 +108,15 @@ public class AdminController : Controller
             await _adminService.UnBlacklistUserAsync(id);
             return RedirectToAction("ManageUsers");
         }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "User not found for UnBlacklist, ID: {Id}", id);
+            return NotFound($"User not found: {ex.Message}");
+        }
         catch (Exception ex)
         {
-            return NotFound(ex.Message);
+            _logger.LogError(ex, "Error unblacklisting user, ID: {Id}", id);
+            return BadRequest($"Failed to unblacklist user: {ex.Message}");
         }
     }
 }

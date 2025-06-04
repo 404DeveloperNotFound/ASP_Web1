@@ -3,21 +3,25 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using WebApplication1.AbstractClasses;
 using WebApplication1.DataTransferObjects;
 using WebApplication1.Interfaces;
 using WebApplication1.ViewModels;
+using WebApplication1.Services;
+
+namespace WebApplication1.Controllers;
 
 public class AccountController : Controller
 {
     private readonly IAccountService _accountService;
     private readonly CartService _cartService;
+    private readonly RedisService _redisService;
     private readonly ILogger<AccountController> _logger;
 
-    public AccountController(IAccountService accountService, CartService cartService, ILogger<AccountController> logger)
+    public AccountController(IAccountService accountService, CartService cartService, RedisService redisService, ILogger<AccountController> logger)
     {
         _accountService = accountService;
         _cartService = cartService;
+        _redisService = redisService;
         _logger = logger;
     }
 
@@ -29,7 +33,7 @@ public class AccountController : Controller
 
         return View();
     }
-     
+
     [HttpPost, AllowAnonymous]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
@@ -49,7 +53,8 @@ public class AccountController : Controller
             var claims = BuildClaims(user);
             await SignInAsync(claims);
 
-            var sessionCart = await _cartService.LoadCartFromDbAsync(user.Id.ToString());
+            var sessionCart = await _cartService.LoadCartFromDbAsync(user.Id);
+            await _redisService.SetAsync($"user:{user.Id}:cart", sessionCart, TimeSpan.FromMinutes(30));
             HttpContext.Session.SetObject("Cart", sessionCart);
 
             return RedirectToAction("Index", "Home");
@@ -89,7 +94,8 @@ public class AccountController : Controller
             var claims = BuildClaims(user);
             await SignInAsync(claims);
 
-            var cart = await _cartService.LoadCartFromDbAsync(user.Id.ToString());
+            var cart = await _cartService.LoadCartFromDbAsync(user.Id);
+            await _redisService.SetAsync($"user:{user.Id}:cart", cart, TimeSpan.FromMinutes(30));
             HttpContext.Session.SetObject("Cart", cart);
 
             return RedirectToAction("Index", "Home");
@@ -112,12 +118,14 @@ public class AccountController : Controller
     {
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId != null)
+            if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var clientId))
             {
-                var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart");
-                if (sessionCart != null)
-                    await _cartService.SaveCartToDbAsync(userId, sessionCart);
+                var cacheKey = $"user:{clientId}:cart";
+                var cart = await _redisService.GetAsync<SessionCart>(cacheKey) ?? new SessionCart();
+                await _cartService.SaveCartToDbAsync(clientId, cart);
+                await _redisService.RemoveAsync(cacheKey);
+                HttpContext.Session.Remove("Cart");
+                _logger.LogInformation("User {ClientId} logged out, cart saved to database", clientId);
             }
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

@@ -1,17 +1,15 @@
-﻿namespace WebApplication1.DataTransferObjects
+﻿namespace WebApplication1.DataTransferObjects;
+
+public class SessionCart
 {
-    public class SessionCart
-    {
-        public List<CartItemDto> Items { get; set; } = new List<CartItemDto>();
-    }
+    public List<CartItemDto> Items { get; set; } = new();
+}
 
-    public class CartItemDto
-    {
-        public int ItemId { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int Quantity { get; set; }
-        public decimal Price { get; set; } 
-        public int MaxQuantity { get; set; }
-    }
-
+public class CartItemDto
+{
+    public int ItemId { get; set; }
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+    public int Quantity { get; set; }
+    public int MaxQuantity { get; set; }
 }

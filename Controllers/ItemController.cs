@@ -100,12 +100,12 @@ public class ItemController : Controller
     {
         if (!ModelState.IsValid)
         {
+            // Logging validation errors
             foreach (var entry in ModelState)
             {
                 var fieldName = entry.Key;
                 foreach (var error in entry.Value.Errors)
                 {
-                    // If ErrorMessage is empty, fall back to Exception.Message
                     var message = string.IsNullOrEmpty(error.ErrorMessage)
                         ? error.Exception?.Message
                         : error.ErrorMessage;

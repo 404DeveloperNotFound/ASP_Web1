@@ -1,13 +1,15 @@
-﻿using WebApplication1.DataTransferObjects;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using WebApplication1.DataTransferObjects;
 
 namespace WebApplication1.Interfaces
 {
     public interface ICartAppService
     {
-        SessionCart GetSessionCart(HttpContext httpContext);
-        Task AddToCartAsync(int itemId, HttpContext httpContext);
-        Task RemoveFromCartAsync(int itemId, HttpContext httpContext);
-        Task UpdateQuantityAsync(int itemId, int quantity, HttpContext httpContext);
-        Task PrepareBuyNowAsync(int itemId, HttpContext httpContext);
+        Task<SessionCart> GetCartAsync(HttpContext context, ClaimsPrincipal user);
+        Task AddToCartAsync(int itemId, HttpContext context, ClaimsPrincipal user);
+        Task RemoveFromCartAsync(int itemId, HttpContext context, ClaimsPrincipal user);
+        Task UpdateQuantityAsync(int itemId, int quantity, HttpContext context, ClaimsPrincipal user);
+        Task PrepareBuyNowAsync(int itemId, HttpContext context, ClaimsPrincipal user);
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using WebApplication1.Data;
 using WebApplication1.Interfaces;
 using WebApplication1.Middlewares;
@@ -7,7 +8,7 @@ using WebApplication1.Services;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -33,15 +34,62 @@ internal class Program
             });
 
         builder.Services.AddControllersWithViews().AddNewtonsoftJson();
+        builder.Services.AddHostedService<RedisSyncBackgroundService>();
         builder.Services.AddDistributedMemoryCache(); // Enables in-memory storage for sessions
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = "localhost:6379";
+            options.InstanceName = "ECommerce_";
+            options.ConnectionMultiplexerFactory = async () =>
+            {
+                var config = ConfigurationOptions.Parse("localhost:6379");
+                config.AbortOnConnectFail = false;
+                config.ConnectRetry = 3;
+                config.ConnectTimeout = 5000;
+
+                var redis = await ConnectionMultiplexer.ConnectAsync(config);
+
+                redis.ConnectionFailed += (sender, args) =>
+                {
+                    Console.WriteLine($"Redis connection failed: {args.Exception}");
+                };
+
+                redis.ConnectionRestored += (sender, args) =>
+                {
+                    Console.WriteLine("Redis connection restored");
+                };
+
+                return redis;
+            };
+        });
         builder.Services.AddScoped<CartService>();
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IAddressService, AddressService>();
+        builder.Services.AddHttpClient();
         builder.Services.AddScoped<IAdminService, AdminService>();
         builder.Services.AddScoped<ICartAppService, CartAppService>();
         builder.Services.AddScoped<IRoleRedirectService, RoleRedirectService>();
         builder.Services.AddScoped<IItemService, ItemService>();
         builder.Services.AddScoped<IOrderService, OrderService>();
+        builder.Services.AddHostedService<RedisSyncBackgroundService>();
+        // Redis services
+        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+        {
+            var configuration = ConfigurationOptions.Parse("localhost:6379");
+            configuration.AbortOnConnectFail = false;
+            return ConnectionMultiplexer.Connect(configuration);
+        });
+
+        // Then register your RedisService
+        builder.Services.AddSingleton<RedisService>();
+        builder.Services.AddScoped<RedisInitializer>();
+        builder.Services.AddScoped<RedisToDbSynchronizer>();
+
+        // Application services (implement later)
+        //builder.Services.AddScoped<ProductListingService>();
+        //builder.Services.AddScoped<ShoppingCartService>();
+        //builder.Services.AddScoped<StockService>();
+        //builder.Services.AddScoped<OrderService>();
         builder.Services.AddSession(options =>
         {
             options.IdleTimeout = TimeSpan.FromHours(8);
@@ -49,9 +97,27 @@ internal class Program
             options.Cookie.IsEssential = true;
         });
 
-        License.LicenseKey = "IRONSUITE.OM.SINGH.CODITAS.COM.22579-A03405F39D-B4JMVZG-2IGA5RWWWMAK-YWJGE6MMTVZN-KCHNEYI5SWW7-YWEGJHOWJCVL-2LE4PP6TXCGD-NOFZ2KFEUEMK-SVCG43-TMXTNX2L73GPEA-DEPLOYMENT.TRIAL-RD6WBY.TRIAL.EXPIRES.28.MAY.2025";
+        License.LicenseKey = "IRONSUITE.OM.SINGH.CODITAS.COM.22579-139B8FB7D1-CGMH6-GSFNMEJHDIRP-2BWTWV2AKSXE-G5TL4XETKAEI-BFEFCWKIH5XM-TSEPVD4K73FC-57X7STGAYV6M-GZ5MMP-TQZ3D2H7AMSPUA-DEPLOYMENT.TRIAL-TMQH46.TRIAL.EXPIRES.02.JUL.2025";
 
         var app = builder.Build();
+
+        // Initialize Redis data (only in development)
+        if (app.Environment.IsDevelopment())
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var initializer = scope.ServiceProvider.GetRequiredService<RedisInitializer>();
+                try
+                {
+                    await initializer?.InitializeDataAsync();
+                }
+                catch (Exception ex)
+                {
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred initializing Redis data");
+                }
+            }
+        }
 
         if (!app.Environment.IsDevelopment())
         {

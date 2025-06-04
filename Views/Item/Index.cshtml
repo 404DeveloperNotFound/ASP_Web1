@@ -21,11 +21,14 @@
             <div class="col-md-2">
                 <select name="categoryId" class="form-select">
                     <option value="">All Categories</option>
-                    @foreach (var category in (SelectList)ViewData["Categories"])
+                    @if (ViewData["Categories"] is SelectList categories)
                     {
-                        <option value="@category.Value" selected="@(category.Value == ViewData["CurrentCategory"]?.ToString())">
-                            @category.Text
-                        </option>
+                        @foreach (var category in (SelectList)ViewData["Categories"])
+                        {
+                            <option value="@category.Value" selected="@(category.Value == ViewData["CurrentCategory"]?.ToString())">
+                                @category.Text
+                            </option>
+                        }
                     }
 
                 </select>

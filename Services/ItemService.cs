@@ -173,7 +173,7 @@ namespace WebApplication1.Services
                         (decimal)item.Price,
                         item.ImageUrl,
                         item.CategoryId,
-                        "", // CategoryName not available; fetch if needed
+                        "", 
                         item.SerialNumber,
                         item.Quantity,
                         item.RowVersion
@@ -184,8 +184,8 @@ namespace WebApplication1.Services
                     var updatedProductIds = productIds.Append(item.Id.ToString()).ToArray();
                     var tasks = new List<Task>
                         {
-                            _redisService.SetAsync($"item:{item.Id}", item), // Store Items for RedisInitializer consistency
-                            _redisService.SetAsync($"item:{item.Id}:dto", itemDto), // Store ItemDto for GetByIdAsync
+                            _redisService.SetAsync($"item:{item.Id}", item), 
+                            _redisService.SetAsync($"item:{item.Id}:dto", itemDto),
                             _redisService.SetAsync($"stock:{item.Id}", item.Quantity),
                             _redisService.SetAsync("item:list", updatedProductIds),
                             _redisService.RemoveAsync("categories:all"),
@@ -250,8 +250,8 @@ namespace WebApplication1.Services
 
                     var tasks = new List<Task>
                         {
-                            _redisService.SetAsync($"item:{existing.Id}", existing), // Store Items for RedisInitializer consistency
-                            _redisService.SetAsync($"item:{existing.Id}:dto", updatedItemDto), // Store ItemDto for GetByIdAsync
+                            _redisService.SetAsync($"item:{existing.Id}", existing), 
+                            _redisService.SetAsync($"item:{existing.Id}:dto", updatedItemDto), 
                             _redisService.SetAsync($"stock:{existing.Id}", existing.Quantity),
                             _redisService.RemoveMatchingAsync("item:page:*"),
                             _redisService.RemoveAsync("admin:items")
@@ -352,7 +352,7 @@ namespace WebApplication1.Services
                         (decimal)item.Price,
                         item.ImageUrl,
                         item.CategoryId,
-                        "", // CategoryName not available
+                        "", 
                         item.SerialNumber,
                         item.Quantity,
                         item.RowVersion

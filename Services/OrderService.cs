@@ -31,7 +31,14 @@ namespace WebApplication1.Services
             var address = await _context.Addresses.FindAsync(addressId)
                           ?? throw new KeyNotFoundException("Address not found.");
 
-            var cart = httpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
+            if (!int.TryParse(httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var clientId))
+                throw new UnauthorizedAccessException("Invalid user.");
+
+            var cacheKey = $"user:{clientId}:cart";
+            var cart = await _redisService.GetAsync<SessionCart>(cacheKey)
+                       ?? httpContext.Session.GetObject<SessionCart>("Cart")
+                       ?? new SessionCart();
+
             var total = cart.Items.Sum(c => c.Quantity * c.Price);
 
             var addressDto = new AddressDto(
@@ -132,12 +139,13 @@ namespace WebApplication1.Services
 
                     tasks.Add(_redisService.RemoveMatchingAsync("item:page:*"));
                     tasks.Add(_redisService.RemoveAsync("admin:items"));
+                    tasks.Add(_redisService.RemoveAsync($"user:{clientId}:cart"));
 
                     await Task.WhenAll(tasks);
 
                     httpContext.Session.Remove("Cart");
                     await transaction.CommitAsync();
-                    _logger.LogInformation("Order placed for user {ClientId}, updated item caches", clientId);
+                    _logger.LogInformation("Order placed for user {ClientId}, updated item caches, cleared cart", clientId);
 
                     return order.Id;
                 }

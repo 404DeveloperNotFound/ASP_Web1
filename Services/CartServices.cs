@@ -1,69 +1,86 @@
-﻿using WebApplication1.Data;
-using WebApplication1.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApplication1.Data;
 using WebApplication1.DataTransferObjects;
-using Microsoft.EntityFrameworkCore;
 
-public class CartService
+namespace WebApplication1.Services
 {
-    private readonly Web1Context _context;
-
-    public CartService(Web1Context context)
+    public class CartService
     {
-        _context = context;
-    }
-     
-    public async Task SaveCartToDbAsync(string userId, SessionCart sessionCart)
-    {
-        int uid = int.Parse(userId);
+        private readonly Web1Context _context;
+        private readonly ILogger<CartService> _logger;
 
-        var cart = await _context.Carts
-            .Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.UserId == uid);
-
-        if (cart == null)
+        public CartService(Web1Context context, ILogger<CartService> logger)
         {
-            cart = new Cart { UserId = uid };
-            _context.Carts.Add(cart);
-            await _context.SaveChangesAsync();
+            _context = context;
+            _logger = logger;
         }
 
-        cart.Items.Clear();
-
-        foreach (var dto in sessionCart.Items)
+        public async Task SaveCartToDbAsync(int clientId, SessionCart sessionCart)
         {
-            cart.Items.Add(new CartItem
+            var cart = await _context.Carts
+                .Include(c => c.Items)
+                .FirstOrDefaultAsync(c => c.UserId == clientId);
+
+            if (cart == null)
             {
-                CartId = cart.Id, 
-                ItemId = dto.ItemId,
-                Quantity = dto.Quantity,
-                Price = dto.Price
-            });
+                cart = new Cart { UserId = clientId };
+                _context.Carts.Add(cart);
+            }
+            else
+            {
+                cart.Items.Clear();
+            }
+
+            foreach (var dto in sessionCart.Items)
+            {
+                cart.Items.Add(new CartItem
+                {
+                    CartId = cart.Id,
+                    ItemId = dto.ItemId,
+                    Quantity = dto.Quantity,
+                    Price = dto.Price
+                });
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Saved cart to database for user {ClientId}", clientId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving cart to database for user {ClientId}", clientId);
+                throw;
+            }
         }
 
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task<SessionCart> LoadCartFromDbAsync(string userId)
-    {
-        int uid = int.Parse(userId);
-
-        var cart = await _context.Carts
-            .Include(c => c.Items)
-            .ThenInclude(ci => ci.Item)
-            .FirstOrDefaultAsync(c => c.UserId == uid);
-
-        if (cart == null) return new SessionCart();
-
-        return new SessionCart
+        public async Task<SessionCart> LoadCartFromDbAsync(int clientId)
         {
-            Items = cart.Items.Select(ci => new CartItemDto
+            var cart = await _context.Carts
+                .Include(c => c.Items)
+                .ThenInclude(ci => ci.Item)
+                .FirstOrDefaultAsync(c => c.UserId == clientId);
+
+            if (cart == null)
             {
-                ItemId = ci.ItemId,
-                Name = ci.Item?.Name ?? "Unknown",
-                Quantity = ci.Quantity,
-                Price = ci.Price,
-                MaxQuantity = ci.Item?.Quantity ?? 0
-            }).ToList()
-        };
+                _logger.LogDebug("No cart found in database for user {ClientId}", clientId);
+                return new SessionCart();
+            }
+
+            var sessionCart = new SessionCart
+            {
+                Items = cart.Items.Select(ci => new CartItemDto
+                {
+                    ItemId = ci.ItemId,
+                    Name = ci.Item?.Name ?? "Unknown",
+                    Quantity = ci.Quantity, 
+                    Price = ci.Price,
+                    MaxQuantity = ci.Item?.Quantity ?? 0
+                }).ToList()
+            };
+
+            _logger.LogInformation("Loaded cart from database for user {ClientId}", clientId);
+            return sessionCart;
+        }
     }
 }

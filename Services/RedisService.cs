@@ -17,9 +17,10 @@ namespace WebApplication1.Services
             _logger = logger;
             _jsonOptions = new JsonSerializerOptions
             {
-                ReferenceHandler = ReferenceHandler.IgnoreCycles, // Prevent serialization cycles
-                PropertyNameCaseInsensitive = true, // Maintain case-insensitive deserialization
-                WriteIndented = false // Optimize for Redis storage
+                // Prevent serialization cycles
+                ReferenceHandler = ReferenceHandler.IgnoreCycles, 
+                PropertyNameCaseInsensitive = true, 
+                WriteIndented = false
             };
         }
 

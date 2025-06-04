@@ -15,17 +15,17 @@ public class RedisInitializer
 
     public async Task InitializeDataAsync()
     {
-        // Load products from database
+        // Load from db
         var products = await _dbContext.Items.ToListAsync();
 
-        // Store each product in Redis
+        // Store in Redis
         foreach (var product in products)
         {
             await _redisService.SetAsync($"item:{product.Id}", product);
             await _redisService.SetAsync($"stock:{product.Id}", product.Quantity);
         }
 
-        // Create product list index
+        // Create item list index
         var productIds = products.Select(p => p.Id.ToString()).ToArray();
         await _redisService.SetAsync("item:list", productIds);
 

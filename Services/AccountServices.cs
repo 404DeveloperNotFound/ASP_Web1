@@ -50,5 +50,4 @@ namespace WebApplication1.Services
             return new AuthenticatedUserDto(user.Id, user.Username, user.Email, user.Role);
         }
     }
-
 }

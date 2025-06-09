@@ -13,7 +13,7 @@ namespace WebApplication1.Services
         public AccountService(Web1Context context)
         {
             _context = context;
-        }
+        } 
 
         public async Task<AuthenticatedUserDto> RegisterAsync(RegisterDto dto)
         {
@@ -24,19 +24,23 @@ namespace WebApplication1.Services
                 throw new InvalidOperationException("Username is already taken.");
 
             var hashed = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            var otp = new Random().Next(100000, 999999).ToString();
 
             var user = new Client
             {
                 Username = dto.Username,
                 Email = dto.Email,
                 PasswordHash = hashed,
-                Role = dto.Role ?? "Client"
+                Role = dto.Role ?? "Client",
+                IsEmailVerified = false,
+                EmailOtp = otp,
+                OtpGeneratedAt = DateTime.UtcNow
             };
 
             _context.Clients.Add(user);
             await _context.SaveChangesAsync();
 
-            return new AuthenticatedUserDto(user.Id, user.Username, user.Email, user.Role);
+            return new AuthenticatedUserDto(user.Id, user.Username, user.Email, user.Role, otp);
         }
 
         public async Task<AuthenticatedUserDto> LoginAsync(LoginDto dto)
@@ -47,7 +51,10 @@ namespace WebApplication1.Services
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 throw new UnauthorizedAccessException("Invalid login attempt.");
 
-            return new AuthenticatedUserDto(user.Id, user.Username, user.Email, user.Role);
+            if (!user.IsEmailVerified)
+                throw new UnauthorizedAccessException("Email not verified.");
+
+            return new AuthenticatedUserDto(user.Id, user.Username, user.Email, user.Role, "");
         }
     }
 }

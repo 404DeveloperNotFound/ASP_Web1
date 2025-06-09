@@ -12,7 +12,7 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews(); 
         builder.Services.AddDbContext<Web1Context>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"),
         sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()
@@ -62,6 +62,7 @@ internal class Program
                 return redis;
             };
         });
+        builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<CartService>();
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IAddressService, AddressService>();

@@ -12,11 +12,14 @@ namespace WebApplication1.Services;
 public class OrderService : IOrderService
 {
     private readonly Web1Context _context;
+    private readonly IEmailService _emailService;
 
-    public OrderService(Web1Context context)
+    public OrderService(Web1Context context, IEmailService emailService)
     {
         _context = context;
+        _emailService = emailService;
     }
+
 
     public async Task<PaymentDto> GetPaymentAsync(HttpContext httpContext)
     {
@@ -95,6 +98,26 @@ public class OrderService : IOrderService
         }
 
         httpContext.Session.Remove("Cart");
+
+        // Email Logic
+        var invoiceBytes = await GenerateInvoicePdfAsync(order.Id);
+        var client = await _context.Clients.FindAsync(clientId);
+
+        string html = $@"
+        <h2>Hi {client.Username},</h2>
+        <p>Thank you for placing your order with us. Please find your invoice attached.</p>
+        <p>Order ID: <strong>{order.Id}</strong><br>
+        Total Items: <strong>{dto.CartItems.Count}</strong><br>
+        Total Amount: <strong>{dto.CartItems.Sum(x => x.Quantity * x.Price):C}</strong></p>
+        <p>We appreciate your business!</p>";
+
+        await _emailService.SendEmailWithAttachmentAsync(
+            client.Email,
+            $"Order Confirmation - Order #{order.Id}",
+            html,
+            invoiceBytes,
+            $"Invoice_Order_{order.Id}.pdf"
+        );
         return order.Id;
     }
 

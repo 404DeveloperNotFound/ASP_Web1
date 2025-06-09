@@ -94,7 +94,7 @@ public class AccountController : Controller
                 throw new UnauthorizedAccessException("Invalid login attempt.");
 
             // Ask for verification if email not verified
-            if (!user.IsEmailVerified)
+            if (!user.IsEmailVerified && !(user?.Role=="Admin"))
             {
                 var otp = new Random().Next(100000, 999999).ToString();
                 user.EmailOtp = otp;

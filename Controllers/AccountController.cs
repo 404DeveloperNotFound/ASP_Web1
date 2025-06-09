@@ -10,6 +10,7 @@ using WebApplication1.Interfaces;
 using WebApplication1.Models;
 using WebApplication1.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using static System.Net.WebRequestMethods;
 
 public class AccountController : Controller
 {
@@ -55,7 +56,7 @@ public class AccountController : Controller
             var user = await _accountService.RegisterAsync(dto);
 
             await _emailService.SendEmailAsync(user.Email, "Verify your email",
-                $"<h2>Your OTP is: {user.EmailOtp}</h2>");
+                 $"<h2>Your OTP is: {user.EmailOtp}</h2> <br/><p>It will expire after 5 minutes.</p>");
 
             TempData["UserEmail"] = user.Email;
             return RedirectToAction("VerifyEmail");
@@ -93,7 +94,7 @@ public class AccountController : Controller
             if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
                 throw new UnauthorizedAccessException("Invalid login attempt.");
 
-            // Ask for verification if email not verified
+            // verification of email
             if (!user.IsEmailVerified && !(user?.Role=="Admin"))
             {
                 var otp = new Random().Next(100000, 999999).ToString();
@@ -102,13 +103,13 @@ public class AccountController : Controller
                 await _context.SaveChangesAsync();
 
                 await _emailService.SendEmailAsync(user.Email, "Verify your email",
-                    $"<h2>Your OTP is: {otp}</h2>");
+                    $"<h2>Your OTP is: {otp}</h2> <br/><p>It will expire after 5 minutes.</p>");
 
                 TempData["UserEmail"] = user.Email;
                 return RedirectToAction("VerifyEmail");
             }
 
-            // Email verified → login
+            // Email verified -> login
             var claims = BuildClaims(new AuthenticatedUserDto(user.Id, user.Username, user.Email, user.Role, user?.EmailOtp ?? ""));
             await SignInAsync(claims);
 
@@ -144,10 +145,10 @@ public class AccountController : Controller
 
         var user = await _context.Clients.FirstOrDefaultAsync(u => u.Email == email);
         if (user == null || user.EmailOtp != otp || user.OtpGeneratedAt == null ||
-            (DateTime.UtcNow - user.OtpGeneratedAt.Value).TotalMinutes > 10)
+            (DateTime.UtcNow - user.OtpGeneratedAt.Value).TotalMinutes > 5)
         {
             ModelState.AddModelError("", "Invalid or expired OTP.");
-            TempData["UserEmail"] = email; // so they can retry
+            TempData["UserEmail"] = email;
             return View();
         }
 
@@ -158,6 +159,32 @@ public class AccountController : Controller
 
         return RedirectToAction("Login");
     }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResendOtp()
+    {
+        var email = TempData["UserEmail"] as string ?? Request.Cookies["UserEmail"];
+        if (string.IsNullOrEmpty(email))
+            return BadRequest("Email not found.");
+
+        var user = await _context.Clients.FirstOrDefaultAsync(u => u.Email == email);
+        if (user == null)
+            return NotFound("User not found.");
+
+        var otp = new Random().Next(100000, 999999).ToString();
+        user.EmailOtp = otp;
+        user.OtpGeneratedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        await _emailService.SendEmailAsync(user.Email, "Verify your email",
+            $"<h2>Your OTP is: {otp}</h2><p>It will expire after 5 minutes.</p>");
+
+        Response.Cookies.Append("UserEmail", email);
+        return Ok("OTP resent successfully.");
+    }
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]

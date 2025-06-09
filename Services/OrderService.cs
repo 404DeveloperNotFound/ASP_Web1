@@ -109,7 +109,7 @@ public class OrderService : IOrderService
         <p>Order ID: <strong>{order.Id}</strong><br>
         Total Items: <strong>{dto.CartItems.Count}</strong><br>
         Total Amount: <strong>{dto.CartItems.Sum(x => x.Quantity * x.Price):C}</strong></p>
-        <p>We appreciate your business!</p>";
+        <p>We appreciate your business! Please visit us again.</p>";
 
         await _emailService.SendEmailWithAttachmentAsync(
             client.Email,

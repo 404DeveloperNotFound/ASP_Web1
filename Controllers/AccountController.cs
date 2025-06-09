@@ -1,24 +1,32 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WebApplication1.AbstractClasses;
+using WebApplication1.Data;
 using WebApplication1.DataTransferObjects;
 using WebApplication1.Interfaces;
+using WebApplication1.Models;
 using WebApplication1.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 public class AccountController : Controller
 {
     private readonly IAccountService _accountService;
     private readonly CartService _cartService;
     private readonly ILogger<AccountController> _logger;
+    private readonly IEmailService _emailService;
+    private readonly Web1Context _context;
 
-    public AccountController(IAccountService accountService, CartService cartService, ILogger<AccountController> logger)
+    public AccountController(IAccountService accountService, CartService cartService,
+        ILogger<AccountController> logger, IEmailService emailService, Web1Context context)
     {
         _accountService = accountService;
         _cartService = cartService;
         _logger = logger;
+        _emailService = emailService;
+        _context = context;
     }
 
     [HttpGet, AllowAnonymous]
@@ -29,7 +37,7 @@ public class AccountController : Controller
 
         return View();
     }
-     
+
     [HttpPost, AllowAnonymous]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
@@ -46,13 +54,11 @@ public class AccountController : Controller
             var dto = new RegisterDto(model.Username, model.Email, model.Password, model.Role);
             var user = await _accountService.RegisterAsync(dto);
 
-            var claims = BuildClaims(user);
-            await SignInAsync(claims);
+            await _emailService.SendEmailAsync(user.Email, "Verify your email",
+                $"<h2>Your OTP is: {user.EmailOtp}</h2>");
 
-            var sessionCart = await _cartService.LoadCartFromDbAsync(user.Id.ToString());
-            HttpContext.Session.SetObject("Cart", sessionCart);
-
-            return RedirectToAction("Index", "Home");
+            TempData["UserEmail"] = user.Email;
+            return RedirectToAction("VerifyEmail");
         }
         catch (InvalidOperationException ex)
         {
@@ -83,10 +89,27 @@ public class AccountController : Controller
 
         try
         {
-            var dto = new LoginDto(model.Email, model.Password);
-            var user = await _accountService.LoginAsync(dto);
+            var user = await _context.Clients.SingleOrDefaultAsync(u => u.Email == model.Email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
+                throw new UnauthorizedAccessException("Invalid login attempt.");
 
-            var claims = BuildClaims(user);
+            // Ask for verification if email not verified
+            if (!user.IsEmailVerified)
+            {
+                var otp = new Random().Next(100000, 999999).ToString();
+                user.EmailOtp = otp;
+                user.OtpGeneratedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                await _emailService.SendEmailAsync(user.Email, "Verify your email",
+                    $"<h2>Your OTP is: {otp}</h2>");
+
+                TempData["UserEmail"] = user.Email;
+                return RedirectToAction("VerifyEmail");
+            }
+
+            // Email verified → login
+            var claims = BuildClaims(new AuthenticatedUserDto(user.Id, user.Username, user.Email, user.Role, user?.EmailOtp ?? ""));
             await SignInAsync(claims);
 
             var cart = await _cartService.LoadCartFromDbAsync(user.Id.ToString());
@@ -104,6 +127,36 @@ public class AccountController : Controller
             _logger.LogError(ex, "Login failed");
             return View("Error");
         }
+    }
+
+    [HttpGet, AllowAnonymous]
+    public IActionResult VerifyEmail()
+    {
+        return View();
+    }
+
+    [HttpPost, AllowAnonymous]
+    public async Task<IActionResult> VerifyEmail(string otp)
+    {
+        var email = TempData["UserEmail"] as string;
+        if (string.IsNullOrEmpty(email))
+            return View("Error");
+
+        var user = await _context.Clients.FirstOrDefaultAsync(u => u.Email == email);
+        if (user == null || user.EmailOtp != otp || user.OtpGeneratedAt == null ||
+            (DateTime.UtcNow - user.OtpGeneratedAt.Value).TotalMinutes > 10)
+        {
+            ModelState.AddModelError("", "Invalid or expired OTP.");
+            TempData["UserEmail"] = email; // so they can retry
+            return View();
+        }
+
+        user.IsEmailVerified = true;
+        user.EmailOtp = null;
+        user.OtpGeneratedAt = null;
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Login");
     }
 
     [HttpPost]
@@ -136,7 +189,7 @@ public class AccountController : Controller
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email), 
+            new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role)
         };
     }

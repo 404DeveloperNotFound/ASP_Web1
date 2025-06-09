@@ -34,6 +34,7 @@ internal class Program
 
         builder.Services.AddControllersWithViews().AddNewtonsoftJson();
         builder.Services.AddDistributedMemoryCache(); // Enables in-memory storage for sessions
+        builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<CartService>();
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IAddressService, AddressService>();

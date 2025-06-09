@@ -14,14 +14,16 @@ namespace WebApplication1.Services
     {
         private readonly Web1Context _context;
         private readonly RedisService _redisService;
-        private readonly ILogger<OrderService> _logger;
+        private readonly ILogger<OrderService> _logger; 
+        private readonly IEmailService _emailService;
 
-        public OrderService(Web1Context context, RedisService redisService, ILogger<OrderService> logger)
-        {
+        public OrderService(Web1Context context, RedisService redisService, ILogger<OrderService> logger, IEmailService emailService){
             _context = context;
             _redisService = redisService;
             _logger = logger;
+            _emailService = emailService;
         }
+
 
         public async Task<PaymentDto> GetPaymentAsync(HttpContext httpContext)
         {
@@ -144,8 +146,36 @@ namespace WebApplication1.Services
                     await Task.WhenAll(tasks);
 
                     httpContext.Session.Remove("Cart");
+
                     await transaction.CommitAsync();
                     _logger.LogInformation("Order placed for user {ClientId}, updated item caches, cleared cart", clientId);
+
+                    // Email Logic
+                    try
+                    {
+                        var invoiceBytes = await GenerateInvoicePdfAsync(order.Id);
+                        var client = await _context.Clients.FindAsync(clientId);
+
+                        string html = $@"
+                            <h2>Hi {client.Username},</h2>
+                            <p>Thank you for placing your order with us. Please find your invoice attached.</p>
+                            <p>Order ID: <strong>{order.Id}</strong><br>
+                            Total Items: <strong>{dto.CartItems.Count}</strong><br>
+                            Total Amount: <strong>{dto.CartItems.Sum(x => x.Quantity * x.Price):C}</strong></p>
+                            <p>We appreciate your business! Please visit us again.</p>";
+
+                        await _emailService.SendEmailWithAttachmentAsync(
+                            client.Email,
+                            $"Order Confirmation - Order #{order.Id}",
+                            html,
+                            invoiceBytes,
+                            $"Invoice_Order_{order.Id}.pdf"
+                        );
+                    }
+                    catch (Exception emailEx)
+                    {
+                        _logger.LogError(emailEx, "Failed to send confirmation email for order {OrderId}", order.Id);
+                    }
 
                     return order.Id;
                 }

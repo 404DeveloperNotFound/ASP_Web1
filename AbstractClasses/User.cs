@@ -13,6 +13,9 @@ namespace WebApplication1.AbstractClasses
         [Required]
         public string PasswordHash { get; set; }
         public bool IsBlocked { get; set; } = false;
+        public string? EmailOtp { get; set; }
+        public DateTime? OtpGeneratedAt { get; set; }
+        public bool IsEmailVerified { get; set; } = false;
         [Required]
         public string Role { get; set; } // "Admin" or "Client"
 

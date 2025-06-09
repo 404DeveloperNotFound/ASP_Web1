@@ -1,0 +1,102 @@
+﻿@{
+    ViewData["Title"] = "Verify Email";
+}
+
+<div class="container-sm px-5 py-5 d-flex flex-column justify-content-center">
+    <div class="container-sm">
+        <h2>Email Verification</h2>
+
+        <form asp-action="VerifyEmail" method="post">
+            @Html.AntiForgeryToken()
+            <input type="text" name="otp" placeholder="Enter OTP" class="form-control" required />
+            <button type="submit" class="btn btn-success mt-2">Verify</button>
+        </form>
+
+        <button id="resendBtn" class="btn text-light btn-secondary mt-3" onclick="resendOtp()" disabled>Resend OTP (<span id="timer">60</span>s)</button>
+
+        <div id="otpMessage" class="text-success mt-2"></div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="text-danger">@Html.ValidationSummary()</div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const RESEND_DELAY = 60;
+        const STORAGE_KEY = "otpResendTimestamp";
+
+        const resendBtn = document.getElementById('resendBtn');
+        const timerSpan = document.getElementById('timer');
+
+        function startCountdown(remainingSeconds) {
+            resendBtn.disabled = true;
+            timerSpan.textContent = remainingSeconds;
+
+            const countdown = setInterval(() => {
+                remainingSeconds--;
+                timerSpan.textContent = remainingSeconds;
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(countdown);
+                    resendBtn.disabled = false;
+                    timerSpan.textContent = "Ready";
+                    localStorage.removeItem(STORAGE_KEY);
+                } else {
+                    // Updating remaining time in localStorage
+                    const now = new Date().getTime();
+                    const newTimestamp = now - (RESEND_DELAY - remainingSeconds) * 1000;
+                    localStorage.setItem(STORAGE_KEY, newTimestamp.toString());
+                }
+            }, 1000);
+        }
+
+        async function resendOtp() {
+            const msg = document.getElementById("otpMessage");
+            msg.textContent = ""; 
+
+            try {
+                const response = await fetch('/Account/ResendOtp', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                });
+
+                if (response.ok) {
+                    msg.textContent = "OTP resent successfully.";
+                    const now = new Date().getTime();
+                    localStorage.setItem(STORAGE_KEY, now.toString());
+                    startCountdown(RESEND_DELAY);
+                } else {
+                    msg.textContent = "Failed to resend OTP. Please try again.";
+                }
+            } catch (error) {
+                msg.textContent = "An error occurred while resending OTP.";
+            }
+        }
+
+        window.onload = function () {
+            const storedTimestamp = localStorage.getItem(STORAGE_KEY);
+
+            if (storedTimestamp) {
+                const now = new Date().getTime();
+                const elapsed = Math.floor((now - parseInt(storedTimestamp)) / 1000);
+                const remaining = Math.max(0, RESEND_DELAY - elapsed);
+
+                if (remaining > 0) {
+                    startCountdown(remaining);
+                } else {
+                    resendBtn.disabled = false;
+                    timerSpan.textContent = "Ready";
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+            } else {
+                // First load
+                startCountdown(RESEND_DELAY);
+            }
+        };
+    </script>
+}

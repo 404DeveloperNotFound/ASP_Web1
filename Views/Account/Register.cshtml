@@ -1,50 +1,240 @@
 ﻿@model WebApplication1.ViewModels.RegisterViewModel
 
-<div class="container px-5">
-    <h2>Register</h2>
+<div class="auth-container">
+    <div class="auth-wrapper">
+        <div class="auth-left">
+            <div class="auth-content">
+                <div class="text-center mb-5">
+                    <i class="bi bi-bag-heart-fill auth-logo"></i>
+                    <h1 class="auth-title">Join Worldly Desires</h1>
+                    <p class="auth-subtitle">Create your exclusive account</p>
+                </div>
 
-    <form asp-action="Register" method="post">
-        @Html.AntiForgeryToken()
-        <div asp-validation-summary="All" class="text-danger"></div>
+                <form asp-action="Register" method="post" class="auth-form">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="text-danger"></div>
 
-        <div class="form-group mt-3">
-            <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control" type="email" />
-            <span asp-validation-for="Email" class="text-danger"></span>
+                    <div class="form-group mb-4">
+                        <label asp-for="Email" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" type="email" placeholder="Enter your email" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="Username" class="form-control" type="text" placeholder="Choose a username" />
+                        </div>
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" class="form-control" type="password" placeholder="Create a password" />
+                            <button class="btn btn-outline-secondary toggle-password" type="button">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                        <div class="form-text small text-secondary">At least 8 characters with numbers and symbols</div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Confirm your password" />
+                            <button class="btn btn-outline-secondary toggle-password" type="button">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100 py-2 mb-3">
+                        <i class="bi bi-person-plus me-2"></i> Create Account
+                    </button>
+
+                    <div class="text-center small mt-4">
+                        Already have an account? <a asp-action="Login" class="text-warning fw-bold">Sign in</a>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        <div class="form-group mt-3">
-            <label asp-for="Username" class="form-label"></label>
-            <input asp-for="Username" class="form-control" type="text" />
-            <span asp-validation-for="Username" class="text-danger"></span>
+        <div class="auth-right">
+            <div class="auth-image-overlay">
+                <div class="auth-quote">
+                    <i class="bi bi-quote fs-1 text-warning opacity-25"></i>
+                    <p class="mb-0">"Experience luxury shopping like never before with our exclusive collections."</p>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group mt-3">
-            <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" class="form-control" type="password" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-
-        <div class="form-group mt-3">
-            <label asp-for="ConfirmPassword" class="form-label"></label>
-            <input asp-for="ConfirmPassword" class="form-control" type="password" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-        </div>
-
-        @* <div class="form-group mt-3"> *@
-        @*     <label asp-for="Role" class="form-label"></label> *@
-        @*     <select asp-for="Role" class="form-control"> *@
-        @*         <option value="">-- Select a role --</option> *@
-        @*         <option value="Admin">Admin</option> *@
-        @*         <option value="Client">Client</option> *@
-        @*     </select> *@
-        @*     <span asp-validation-for="Role" class="text-danger"></span> *@
-        @* </div> *@
-
-        <button type="submit" class="btn btn-primary mt-3">Register</button>
-    </form>
+    </div>
 </div>
+
+<style>
+    ::placeholder {
+        color: #6c757d !important;
+        opacity: 1; 
+    }
+
+    .auth-form .form-control::placeholder {
+        color: #6c757d !important; 
+    }
+
+    .auth-form .form-control:focus::placeholder {
+        color: #adb5bd !important;
+    }
+    .auth-container {
+        min-height: 100vh;
+        background-color: #121212;
+    }
+
+    .auth-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .auth-left {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background-color: #1a1a1a;
+    }
+
+    .auth-right {
+        flex: 1;
+        background: url('https://static.fibre2fashion.com/Newsresource/images/286/shutterstock-1905391570_297865.jpg') center/cover no-repeat;
+        position: relative;
+        display: flex;
+        overflow: hidden;
+    }
+
+    .auth-right::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(0, 0, 0, 0.9), transparent);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .auth-content {
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .auth-logo {
+        font-size: 2.5rem;
+        color: #ffc107;
+        margin-bottom: 1rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        color: #adb5bd;
+        margin-bottom: 2rem;
+    }
+
+    .auth-form .form-control {
+        background-color: #2a2a2a;
+        border: 1px solid #333;
+        color: white;
+        padding: 0.75rem 1rem;
+    }
+
+    .auth-form .form-control:focus {
+        background-color: #2a2a2a;
+        border-color: #ffc107;
+        color: white;
+        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+    }
+
+    .auth-form .input-group-text {
+        background-color: #333;
+        border: 1px solid #333;
+        color: #ffc107;
+    }
+
+    .auth-form .btn-warning {
+        background-color: #ffc107;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .auth-form .btn-warning:hover {
+        background-color: #e0a800;
+        transform: translateY(-2px);
+    }
+
+    .auth-image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+        padding: 2rem;
+    }
+
+    .auth-quote {
+        color: white;
+        font-size: 1.25rem;
+        font-style: italic;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .toggle-password {
+        color: #adb5bd;
+        background-color: #2a2a2a;
+        border: 1px solid #333;
+        border-left: none;
+    }
+
+    .toggle-password:hover {
+        color: #ffc107;
+        background-color: #333;
+    }
+
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Toggle password visibility
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.closest('.input-group').querySelector('input');
+                const icon = this.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
+        });
+    </script>
 }

@@ -1,46 +1,329 @@
-﻿@using System.Security.Claims
-@{
-    ViewData["Title"] = "Home Page";
+﻿@{
+    ViewData["Title"] = "Worldly Desires - Premium Global Shopping";
 }
 
-<div class="text-center mt-5">
-    @if (User.Identity.IsAuthenticated)
-    {
-        <h2>Welcome, @User.Identity.Name!</h2>
-        <h4>Email: @User.FindFirst(ClaimTypes.Email)?.Value</h4>
-        <h5>Role: @User.FindFirst(ClaimTypes.Role)?.Value</h5>
-
-        @if (User.IsInRole("Admin"))
-        {
-             <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-primary my-3"> 
-                 Go to Admin Dashboard 
-            </a> 
-        }
-        else if (User.IsInRole("Client"))
-        {
-            <a asp-controller="Item" asp-action="Index" class="btn btn-outline-success my-3">
-                Go to Items Page
-            </a>
-        }
-
-        <form asp-controller="Account" asp-action="Logout" method="post" class="mt-4">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-danger">
-                Logout
-            </button>
-        </form>
-    }
-    else
-    {
-        <h1 class="display-4">Welcome to Worldly Desires!</h1>
-        <p class="lead">Please login or register to continue.</p>
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <a asp-controller="Account" asp-action="Login" class="btn btn-success px-4">
-                Login
-            </a>
-            <a asp-controller="Account" asp-action="Register" class="btn btn-primary px-4">
-                Register
-            </a>
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden">
+    <div class="container">
+        <div class="row align-items-center min-vh-75 py-5">
+            <div class="col-lg-6 text-center text-lg-start py-5">
+                <h1 class="display-3 fw-bold mb-4">Discover Worldly Desires</h1>
+                <p class="lead mb-4">Curated global treasures delivered to your doorstep</p>
+                <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                    <a href="/account/login" class="btn btn-warning btn-lg px-4">Shop Now</a>
+                    <a href="/account/login" class="btn btn-outline-light btn-lg px-4">Explore</a>
+                </div>
+            </div>
+            <div class="col-lg-6 hero-image-container">
+                <div class="hero-image"></div>
+            </div>
         </div>
+    </div>
+</section>
+
+<!-- Featured Categories -->
+<section id="featured" class="py-5 bg-dark">
+    <div class="container">
+        <h2 class="text-center mb-5">Featured Categories</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="category-card position-relative overflow-hidden rounded-3">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30" class="img-fluid" alt="Luxury Watches">
+                    <div class="category-overlay d-flex flex-column justify-content-end">
+                        <h3>Luxury Timepieces</h3>
+                        <a href="/account/login" class="btn btn-sm btn-outline-light align-self-start">Shop Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="category-card position-relative overflow-hidden rounded-3">
+                    <img src="https://images.unsplash.com/photo-1490114538077-0a7f8cb49891" class="img-fluid" alt="Designer Bags">
+                    <div class="category-overlay d-flex flex-column justify-content-end">
+                        <h3>Designer Accessories</h3>
+                        <a href="/account/login" class="btn btn-sm btn-outline-light align-self-start">Shop Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="category-card position-relative overflow-hidden rounded-3">
+                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12" class="img-fluid" alt="Fine Jewelry">
+                    <div class="category-overlay d-flex flex-column justify-content-end">
+                        <h3>Exquisite Jewelry</h3>
+                        <a href="/account/login" class="btn btn-sm btn-outline-light align-self-start">Shop Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Premium Benefits -->
+<section class="py-5 bg-black">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <div class="benefit-icon mb-3">
+                    <i class="bi bi-globe fs-1 text-warning"></i>
+                </div>
+                <h4>Global Sourcing</h4>
+                <p class="small">Curated from the finest artisans worldwide</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="benefit-icon mb-3">
+                    <i class="bi bi-shield-check fs-1 text-warning"></i>
+                </div>
+                <h4>Authenticity</h4>
+                <p class="small">100% verified luxury goods</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="benefit-icon mb-3">
+                    <i class="bi bi-truck fs-1 text-warning"></i>
+                </div>
+                <h4>Fast Shipping</h4>
+                <p class="small">Express delivery worldwide</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="benefit-icon mb-3">
+                    <i class="bi bi-arrow-repeat fs-1 text-warning"></i>
+                </div>
+                <h4>Easy Returns</h4>
+                <p class="small">30-day return policy</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section id="collections" class="py-5 bg-dark">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Curated Collection</h2>
+        <div class="row g-4">
+            <!-- Product 1 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="product-card bg-black rounded-3 overflow-hidden h-100 d-flex flex-column justify-content-between">
+                    <img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49" class="img-fluid" alt="Product">
+                    <div class="p-3 align-bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Luxury Watches</span>
+                            <span class="text-warning">★ ★ ★ ★ ★</span>
+                        </div>
+                        <h5 class="mb-1">Chronograph Master</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">₹2,450</span>
+                            <button class="btn btn-sm btn-outline-warning">+ Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Product 2 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="product-card bg-black rounded-3 overflow-hidden h-100 d-flex flex-column justify-content-between">
+                    <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea" class="img-fluid" alt="Product">
+                    <div class="p-3 align-bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Handbags</span>
+                            <span class="text-warning">★ ★ ★ ★ ☆</span>
+                        </div>
+                        <h5 class="mb-1">Designer Tote</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">₹1,850</span>
+                            <button class="btn btn-sm btn-outline-warning">+ Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Product 3 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="product-card bg-black rounded-3 overflow-hidden h-100 d-flex flex-column justify-content-between">
+                    <img src="https://th.bing.com/th/id/OIP.S3LsaPGB-Vo8sCm0icwsIwHaF9?rs=1&pid=ImgDetMain" class="img-fluid" alt="Product">
+                    <div class="p-3 align-baseline bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Technology</span>
+                            <span class="text-warning">★ ★ ★ ★ ★</span>
+                        </div>
+                        <h5 class="mb-1">Gadgets</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Starting ₹10,000</span>
+                            <button class="btn btn-sm btn-outline-warning">+ Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Product 4 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="product-card bg-black rounded-3 overflow-hidden h-100 d-flex flex-column justify-content-between">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" class="img-fluid" alt="Product">
+                    <div class="p-3 align-bottom">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Footwear</span>
+                            <span class="text-warning">★ ★ ★ ★ ☆</span>
+                        </div>
+                        <h5 class="mb-1">Limited Sneakers</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">₹1,250</span>
+                            <button class="btn btn-sm btn-outline-warning">+ Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="/account/login" class="btn btn-outline-light btn-lg px-5">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-5 bg-black">
+    <div class="container">
+        <h2 class="text-center mb-5">What Our Clients Say</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card p-4 rounded-3 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://randomuser.me/api/portraits/women/32.jpg" class="rounded-circle me-3" width="60" alt="Client">
+                        <div>
+                            <h5 class="mb-0">Sarah J.</h5>
+                            <div class="text-warning small">★ ★ ★ ★ ★</div>
+                        </div>
+                    </div>
+                    <p>"The authentication process gave me complete confidence in my purchase. My handbag arrived perfectly packaged and exactly as described."</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card p-4 rounded-3 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://randomuser.me/api/portraits/men/75.jpg" class="rounded-circle me-3" width="60" alt="Client">
+                        <div>
+                            <h5 class="mb-0">Michael T.</h5>
+                            <div class="text-warning small">★ ★ ★ ★ ★</div>
+                        </div>
+                    </div>
+                    <p>"Exceptional customer service. They helped me find the perfect watch for my anniversary and even included a personalized note."</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card p-4 rounded-3 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" class="rounded-circle me-3" width="60" alt="Client">
+                        <div>
+                            <h5 class="mb-0">Jennifer L.</h5>
+                            <div class="text-warning small">★ ★ ★ ★ ☆</div>
+                        </div>
+                    </div>
+                    <p>"The global shipping was faster than expected. My jewelry arrived in pristine condition. Will definitely shop here again."</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="py-5 bg-dark">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="mb-4">Join Our Exclusive List</h2>
+                <p class="lead mb-4">Subscribe to receive early access to new collections, private sales, and luxury insights.</p>
+                <form class="row g-2 justify-content-center">
+                    <div class="col-md-8">
+                        <input type="email" class="form-control form-control-lg" placeholder="Your email address">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-warning btn-lg w-100">Subscribe</button>
+                    </div>
+                </form>
+                <p class="small text-muted mt-3">We respect your privacy. Unsubscribe at any time.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Custom Styles */
+    .hero-section {
+        background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+        color: white;
+        position: relative;
     }
-</div>
+
+    .hero-image-container {
+        position: relative;
+        height: 100%;
+    }
+
+    .hero-image {
+        background: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8') center/cover;
+        height: 500px;
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .category-card {
+        height: 300px;
+        transition: transform 0.3s ease;
+    }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-card img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .category-card:hover img {
+            transform: scale(1.05);
+        }
+
+    .category-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+        padding: 1.5rem;
+        color: white;
+    }
+
+    .product-card {
+        transition: all 0.3s ease;
+        border: 1px solid #333;
+    }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border-color: #7bc8b6;
+        }
+
+    .product-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        z-index: 1;
+    }
+
+    .testimonial-card {
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+    }
+
+    .benefit-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+</style>

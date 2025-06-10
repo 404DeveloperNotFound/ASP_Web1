@@ -3,6 +3,7 @@
     public record AdminItemDto(int Id,
     string Name,
     decimal Price,
+    string Image,
     string SerialNumber,
     string? CategoryName,
     int Quantity);

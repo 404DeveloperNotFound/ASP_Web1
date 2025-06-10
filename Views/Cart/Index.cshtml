@@ -24,6 +24,7 @@
         <table class="table table-dark dark-theme bg-dark text-white">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Item</th>
                     <th>Price</th>
                     <th>Quantity</th>
@@ -34,15 +35,18 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>@item.Name</td>
+                    <tr class="align-middle">
+                        <td>
+                            <img src="@item.ImageUrl" alt="Item Image" class="img-thumbnail" style="height: 100px; width: 100px; object-fit: cover;" />
+                        </td>
+                        <td class="fw-semibold">@item.Name</td>
                         <td>@item.Price.ToString("C")</td>
                         <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <form method="post" asp-action="UpdateQuantity" asp-controller="Cart">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <form method="post" asp-action="UpdateQuantity" asp-controller="Cart" class="m-0">
                                     <input type="hidden" name="itemId" value="@item.ItemId" />
                                     <input type="hidden" name="quantity" value="@(item.Quantity - 1)" />
-                                    <button type="submit" class="btn btn-sm btn-outline-light"
+                                    <button type="submit" class="btn btn-outline-light btn-sm px-2"
                                     @(item.Quantity <= 1 ? "disabled" : "")>
                                         -
                                     </button>
@@ -50,10 +54,10 @@
 
                                 <span class="px-2">@item.Quantity</span>
 
-                                <form method="post" asp-action="UpdateQuantity" asp-controller="Cart">
+                                <form method="post" asp-action="UpdateQuantity" asp-controller="Cart" class="m-0">
                                     <input type="hidden" name="itemId" value="@item.ItemId" />
                                     <input type="hidden" name="quantity" value="@(item.Quantity + 1)" />
-                                    <button type="submit" class="btn btn-sm btn-outline-light"
+                                    <button type="submit" class="btn btn-outline-light btn-sm px-2"
                                     @(item.Quantity >= item.MaxQuantity ? "disabled" : "")>
                                         +
                                     </button>
@@ -61,8 +65,13 @@
                             </div>
                         </td>
                         <td>@((item.Price * item.Quantity).ToString("C"))</td>
-                        <td><a class="btn btn-danger" asp-action="RemoveFromCart" asp-controller="Cart" asp-route-id="@item.ItemId">Remove</a></td>
+                        <td>
+                            <a class="btn btn-danger btn-sm" asp-action="RemoveFromCart" asp-controller="Cart" asp-route-id="@item.ItemId">
+                                Remove
+                            </a>
+                        </td>
                     </tr>
+
                 }
             </tbody>
         </table>

@@ -10,53 +10,84 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebApplication1.styles.css" asp-append-version="true" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
 </head>
 <body class="dark-theme text-white overflow-y-auto min-vh-100">
     <header class="dark-nav">
-        <nav class="navbar navbar-expand-sm dark-nav navbar-toggleable-sm text-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark shadow-sm py-2">
             <div class="container-fluid">
-                <a class="navbar-brand text-white" asp-area="" asp-controller="Home" asp-action="Index">Web1</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-bag-heart-fill fs-4 text-warning"></i> Web1
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="collapse navbar-collapse justify-content-between" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-white" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door-fill"></i> Home
+                            </a>
                         </li>
+
                         @if (User.IsInRole("Client"))
-                        {   
+                        {
                             <li class="nav-item">
-                                <a class="nav-link text-warning" asp-area="" asp-controller="Cart" asp-action="Index">Cart</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-primary" asp-area="" asp-controller="Order" asp-action="MyOrders">My Orders</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="" asp-controller="Address" asp-action="Index">Addresses</a>
+                                <a class="nav-link text-warning" asp-controller="Cart" asp-action="Index">
+                                    <i class="bi bi-cart4"></i> Cart
+                                </a>
                             </li>
                         }
-
                     </ul>
+
                     <ul class="navbar-nav">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item d-flex gap-4 align-items-center">
-                                <div class="avatar">@User.Identity.Name</div>
-                                <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="nav-link btn btn-link text-white">Logout</button>
-                                </form>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="https://ui-avatars.com/api/?name=@User.Identity.Name&background=random&color=fff&bold=true"
+                                         class="rounded-circle"
+                                         style="width: 45px; height: 45px;"
+                                         title="@User.Identity.Name" />
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end p-2 mt-2 shadow-lg border-0" aria-labelledby="userDropdown" style="min-width: 200px; background-color: #212529;">
+                                    <li class="text-white px-2 pb-2 small">@User.Identity.Name</li>
+                                    @if (User.IsInRole("Client"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item text-white d-flex align-items-center gap-2" asp-controller="Order" asp-action="MyOrders">
+                                                <i class="bi bi-bag-check-fill text-success"></i> My Orders
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-white d-flex align-items-center gap-2" asp-controller="Address" asp-action="Index">
+                                                <i class="bi bi-geo-alt-fill text-info"></i> Addresses
+                                            </a>
+                                        </li>
+                                    }
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item text-white d-flex align-items-center gap-2">
+                                                <i class="bi bi-box-arrow-right text-danger"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
                         }
                         else
                         {
-                            <li class="nav-item text-white dark-nav">
-                                <a class="nav-link text-white" asp-controller="Account" asp-action="Login">Login</a>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="Account" asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-controller="Account" asp-action="Register">Register</a>
+                                <a class="nav-link text-white" asp-controller="Account" asp-action="Register">
+                                    <i class="bi bi-person-plus-fill"></i> Register
+                                </a>
                             </li>
                         }
                     </ul>
@@ -77,7 +108,7 @@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

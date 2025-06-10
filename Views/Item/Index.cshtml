@@ -3,8 +3,8 @@
     ViewData["Title"] = "Index";
 }
 
-<div class="d-flex justify-content-between container dark-theme my-4">
-    <h3>Items</h3>
+<div class="d-flex justify-content-between container dark-theme my-2">
+    <h3>All Items</h3>
     @if (User.IsInRole("Admin"))
     {
         <a asp-action="Create"><button class="btn btn-success">Add Item</button></a>

@@ -93,75 +93,69 @@
                         {
                             <div class="stockLabel">OUT OF STOCK</div>
                         }
-                        <div>
-                            <div class="card-img-top position-relative" style="height: 200px; overflow: hidden;">
-                                <img src="@Url.Content(string.IsNullOrEmpty(item.ImageUrl) ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTK3c711Qnpwx8NGSS2NfnYxn-j2ckJV1Zc5A&s" : item.ImageUrl)"
-                                     class="w-100 h-100 object-fit-cover"
-                                     alt="@item.Name" />
-                                <div class="position-absolute bottom-0 start-0 end-0 p-2"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                        <div class="card-img-top position-relative" style="height: 200px; overflow: hidden;">
+                            <img src="@Url.Content(string.IsNullOrEmpty(item.ImageUrl) ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTK3c711Qnpwx8NGSS2NfnYxn-j2ckJV1Zc5A&s" : item.ImageUrl)"
+                                    class="w-100 h-100 object-fit-cover"
+                                    alt="@item.Name" />
+                            <div class="position-absolute bottom-0 start-0 end-0 p-2"
+                                    style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                            </div>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-0 text-success">@item.Price.ToString("C")</h5>
+                            <h5 class="card-title">
+                                @if (item.Quantity > 0)
+                                {
+                                    <a asp-action="Details" asp-route-id="@item.Id"
+                                        class="text-white text-decoration-none hover-text-success">@item.Name</a>
+                                }
+                                else
+                                {
+                                    <span class="text-white">@item.Name</span>
+                                }
+                            </h5>
+                            <div class="card-text mb-3">
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="fas fa-tag text-success me-2"></i>
+                                    <small>@item?.CategoryName</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-cubes text-success me-2"></i>
+                                    <small>@item?.Quantity in stock</small>
                                 </div>
                             </div>
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title mb-0 text-success">@item.Price.ToString("C")</h5>
-                                <h5 class="card-title">
-                                    @if (item.Quantity > 0)
-                                    {
-                                        <a asp-action="Details" asp-route-id="@item.Id"
-                                           class="text-white text-decoration-none hover-text-success">@item.Name</a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-white">@item.Name</span>
-                                    }
-                                </h5>
-                                <div class="card-text mb-3">
-                                    @* <div class="d-flex align-items-center mb-1"> *@
-                                    @*     <i class="fas fa-barcode text-success me-2"></i> *@
-                                    @*     <small>@item?.SerialNumber</small> *@
-                                    @* </div> *@
-                                    <div class="d-flex align-items-center mb-1">
-                                        <i class="fas fa-tag text-success me-2"></i>
-                                        <small>@item?.CategoryName</small>
+                            <div class="mt-auto align-items-end">
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                            class="btn btn-sm btn-outline-success flex-grow-1">
+                                            <i class="fas fa-edit me-1"></i> Edit
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id"
+                                            class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
                                     </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-cubes text-success me-2"></i>
-                                        <small>@item?.Quantity in stock</small>
+                                }
+                                else
+                                {
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <a asp-controller="Cart" asp-action="BuyNow" asp-route-id="@item.Id"
+                                            class="btn btn-sm btn-warning flex text-white @(item.Quantity <= 0 ? "disabled" : "")">
+                                            Buy Now
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-success add-to-cart-btn px-4 @(item.Quantity <= 0 ? "disabled" : "")" data-id="@item.Id">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="feather feather-shopping-cart">
+                                                <circle cx="9" cy="21" r="1"></circle>
+                                                <circle cx="20" cy="21" r="1"></circle>
+                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                            </svg>
+                                        </button>
                                     </div>
-                                </div>
-                                <div class="mt-auto">
-                                    @if (User.IsInRole("Admin"))
-                                    {
-                                        <div class="d-flex justify-content-between gap-2">
-                                            <a asp-action="Edit" asp-route-id="@item.Id"
-                                               class="btn btn-sm btn-outline-success flex-grow-1">
-                                                <i class="fas fa-edit me-1"></i> Edit
-                                            </a>
-                                            <a asp-action="Delete" asp-route-id="@item.Id"
-                                               class="btn btn-sm btn-outline-danger">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </a>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="d-flex justify-content-between gap-2">
-                                            <a asp-controller="Cart" asp-action="BuyNow" asp-route-id="@item.Id"
-                                               class="btn btn-sm btn-warning flex text-white @(item.Quantity <= 0 ? "disabled" : "")">
-                                                Buy Now
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-success add-to-cart-btn px-4 @(item.Quantity <= 0 ? "disabled" : "")" data-id="@item.Id">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="feather feather-shopping-cart">
-                                                    <circle cx="9" cy="21" r="1"></circle>
-                                                    <circle cx="20" cy="21" r="1"></circle>
-                                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    }
-                                </div>
+                                }
                             </div>
                         </div>
                     </div>

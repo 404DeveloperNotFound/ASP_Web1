@@ -2,27 +2,180 @@
     ViewData["Title"] = "Verify Email";
 }
 
-<div class="container-sm px-5 py-5 d-flex flex-column justify-content-center">
-    <div class="container-sm">
-        <h2>Email Verification</h2>
+<div class="auth-container">
+    <div class="auth-wrapper">
+        <div class="auth-left">
+            <div class="auth-content">
+                <div class="text-center mb-5">
+                    <i class="bi bi-bag-heart-fill auth-logo"></i>
+                    <h1 class="auth-title">Verify Your Email</h1>
+                    <p class="auth-subtitle">Enter the OTP sent to your email</p>
+                </div>
 
-        <form asp-action="VerifyEmail" method="post">
-            @Html.AntiForgeryToken()
-            <input type="text" name="otp" placeholder="Enter OTP" class="form-control" required />
-            <button type="submit" class="btn btn-success mt-2">Verify</button>
-        </form>
+                <form asp-action="VerifyEmail" method="post" class="auth-form">
+                    @Html.AntiForgeryToken()
 
-        <button id="resendBtn" class="btn text-light btn-secondary mt-3" onclick="resendOtp()" disabled>Resend OTP (<span id="timer">60</span>s)</button>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">@Html.ValidationSummary()</div>
+                    }
 
-        <div id="otpMessage" class="text-success mt-2"></div>
+                    <div class="form-group mb-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                            <input type="text" name="otp" placeholder="Enter 6-digit OTP" class="form-control" required />
+                        </div>
+                    </div>
 
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="text-danger">@Html.ValidationSummary()</div>
-        }
+                    <button type="submit" class="btn btn-warning w-100 py-2 mb-3">
+                        <i class="bi bi-check-circle me-2"></i> Verify Account
+                    </button>
+
+                    <div class="text-center">
+                        <button id="resendBtn" class="btn btn-outline-warning mt-3" onclick="resendOtp()" disabled>
+                            Resend OTP (<span id="timer">60</span>s)
+                        </button>
+                        <div id="otpMessage" class="text-success small mt-2"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="auth-right">
+            <div class="auth-image-overlay">
+                <div class="auth-quote">
+                    <i class="bi bi-quote fs-1 text-warning opacity-25"></i>
+                    <p class="mb-0">"Your security is our priority. We verify every account to ensure a safe shopping experience."</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+<style>
+    ::placeholder {
+        color: #6c757d !important;
+        opacity: 1;
+    }
+
+    .auth-form .form-control::placeholder {
+        color: #6c757d !important;
+    }
+
+    .auth-form .form-control:focus::placeholder {
+        color: #adb5bd !important;
+    }
+
+    .auth-container {
+        min-height: 100vh;
+        background-color: #121212;
+    }
+
+    .auth-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .auth-left {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background-color: #1a1a1a;
+    }
+
+    .auth-right {
+        flex: 1;
+        background: url('https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a') center/cover;
+        position: relative;
+        display: none;
+    }
+
+    .auth-content {
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .auth-logo {
+        font-size: 2.5rem;
+        color: #ffc107;
+        margin-bottom: 1rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        color: #adb5bd;
+        margin-bottom: 2rem;
+    }
+
+    .auth-form .form-control {
+        background-color: #2a2a2a;
+        border: 1px solid #333;
+        color: white;
+        padding: 0.75rem 1rem;
+    }
+
+    .auth-form .form-control:focus {
+        background-color: #2a2a2a;
+        border-color: #ffc107;
+        color: white;
+        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+    }
+
+    .auth-form .input-group-text {
+        background-color: #333;
+        border: 1px solid #333;
+        color: #ffc107;
+    }
+
+    .auth-form .btn-warning {
+        background-color: #ffc107;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .auth-form .btn-warning:hover {
+        background-color: #e0a800;
+        transform: translateY(-2px);
+    }
+
+    .auth-image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+        padding: 2rem;
+    }
+
+    .auth-quote {
+        color: white;
+        font-size: 1.25rem;
+        font-style: italic;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .toggle-password {
+        color: #adb5bd;
+        background-color: #2a2a2a;
+        border: 1px solid #333;
+        border-left: none;
+    }
+
+    .toggle-password:hover {
+        color: #ffc107;
+        background-color: #333;
+    }
+
+</style>
 @section Scripts {
     <script>
         const RESEND_DELAY = 60;
@@ -42,7 +195,7 @@
                 if (remainingSeconds <= 0) {
                     clearInterval(countdown);
                     resendBtn.disabled = false;
-                    timerSpan.textContent = "Ready";
+                    timerSpan.textContent = "";
                     localStorage.removeItem(STORAGE_KEY);
                 } else {
                     // Updating remaining time in localStorage
@@ -55,7 +208,7 @@
 
         async function resendOtp() {
             const msg = document.getElementById("otpMessage");
-            msg.textContent = ""; 
+            msg.textContent = "";
 
             try {
                 const response = await fetch('/Account/ResendOtp', {
@@ -66,7 +219,7 @@
                 });
 
                 if (response.ok) {
-                    msg.textContent = "OTP resent successfully.";
+                    msg.textContent = "New OTP sent successfully!";
                     const now = new Date().getTime();
                     localStorage.setItem(STORAGE_KEY, now.toString());
                     startCountdown(RESEND_DELAY);
@@ -90,7 +243,7 @@
                     startCountdown(remaining);
                 } else {
                     resendBtn.disabled = false;
-                    timerSpan.textContent = "Ready";
+                    timerSpan.textContent = "";
                     localStorage.removeItem(STORAGE_KEY);
                 }
             } else {

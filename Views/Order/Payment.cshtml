@@ -3,135 +3,183 @@
 @{
     ViewData["Title"] = "Payment";
 }
-<div class="container">
+<div class="container py-4">
+    <h2 class="text-success mb-4"><i class="fas fa-credit-card me-2"></i>Complete Your Payment</h2>
 
-<h2 class="text-center my-4">Complete Your Payment</h2>
-
-<div class="d-flex justify-content-between gap-4"> 
-    <div class="d-flex w-50 flex-column"> 
-        <!-- Order Summary -->
-        <div class="order-summary text-black">
-            <h4>Order Summary</h4>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                        @if (Model.CartItems == null || Model.CartItems.Count == 0)
-                        {
+    <div class="row g-3">
+        <!-- Order Summary and Shipping Address -->
+        <div class="col-md-6">
+            <!-- Order Summary -->
+            <div class="card bg-black text-white border-0 mb-3">
+                <div class="card-body p-3">
+                    <h4 class="text-white mb-3">Order Summary</h4>
+                    <table class="table table-dark border-success">
+                        <thead>
                             <tr>
-                                <td colspan="4" class="text-center">No items in the cart.</td>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
                             </tr>
-                        }
-                        else{
-                            @foreach (var item in Model.CartItems)
+                        </thead>
+                        <tbody>
+                            @if (Model.CartItems == null || !Model.CartItems.Any())
                             {
                                 <tr>
-                                    <td>@item.Name</td>
-                                    <td>@item.Quantity</td>
-                                    <td>@item.Price.ToString("C")</td>
-                                    <td>@((item.Quantity * item.Price).ToString("C"))</td>
+                                    <td colspan="4" class="text-center text-white bg-black p-4">
+                                        <i class="fas fa-cart-arrow-down text-muted fa-2x mb-3"></i>
+                                        <p>No items in the cart.</p>
+                                    </td>
                                 </tr>
                             }
-                        }
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3" class="text-end"><strong>Total</strong></td>
-                        <td><strong>@Model.TotalAmount.ToString("C")</strong></td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <!-- Shipping Address -->
-        <div class="shipping-address text-black">
-            <div class="d-flex justify-content-between"> 
-                <h4>Shipping Address</h4>
-                <a asp-controller="Address" asp-action="Select">Change</a>
+                            else
+                            {
+                                @foreach (var item in Model.CartItems)
+                                {
+                                    <tr>
+                                        <td>@item.Name</td>
+                                        <td>@item.Quantity</td>
+                                        <td class="text-success">@item.Price.ToString("C")</td>
+                                        <td class="text-success">@((item.Quantity * item.Price).ToString("C"))</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total</strong></td>
+                                <td class="text-success"><strong>@Model.TotalAmount.ToString("C")</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
-            <p>@ViewBag.SelectedAddress?.StreetAddress</p>
-            <p>@ViewBag.SelectedAddress?.City, @ViewBag.SelectedAddress?.State - @ViewBag.SelectedAddress?.PostalCode</p>
-       </div>
-    </div>
 
-    <!-- Payment Method -->
-        <div class="payment-method w-50 text-black">
-            <h4>Payment Method</h4>
-
-            <div asp-validation-summary="All" class="text-danger"></div>
-
-            <form asp-action="ConfirmPayment" method="post">
-                <div class="mb-3">
-                    <label asp-for="CreditCardNumber" class="form-label"></label>
-                    <input asp-for="CreditCardNumber" class="form-control" />
-                    <span asp-validation-for="CreditCardNumber" class="text-danger"></span>
+            <!-- Shipping Address -->
+            <div class="card bg-black text-white border-0">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-white">Shipping Address</h4>
+                        <a asp-controller="Address" asp-action="Select" class="text-success">
+                            <i class="fas fa-edit me-1"></i>Change
+                        </a>
+                    </div>
+                    <p class="text-muted">@ViewBag.SelectedAddress?.StreetAddress</p>
+                    <p class="text-muted">@ViewBag.SelectedAddress?.City, @ViewBag.SelectedAddress?.State - @ViewBag.SelectedAddress?.PostalCode</p>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="ExpiryDate" class="form-label"></label>
-                    <input asp-for="ExpiryDate" class="form-control" type="month" />
-                    <span asp-validation-for="ExpiryDate" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="CVV" class="form-label"></label>
-                    <input asp-for="CVV" class="form-control" />
-                    <span asp-validation-for="CVV" class="text-danger"></span>
-                </div>
-
-                <button type="submit" class="btn btn-success w-100">
-                    Confirm Payment
-                </button>
-            </form>
+            </div>
         </div>
+
+        <!-- Payment Method -->
+        <div class="col-md-6">
+            <div class="card bg-black text-white border-0">
+                <div class="card-body p-3">
+                    <h4 class="text-white mb-3">Payment Method</h4>
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                    <form asp-action="ConfirmPayment" method="post">
+                        <div class="mb-3">
+                            <label asp-for="CreditCardNumber" class="form-label text-white"></label>
+                            <input asp-for="CreditCardNumber" class="form-control bg-black text-white border-success" placeholder="Enter card number" />
+                            <span asp-validation-for="CreditCardNumber" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="ExpiryDate" class="form-label text-white"></label>
+                            <input asp-for="ExpiryDate" class="form-control bg-black text-white border-success" type="month" placeholder="MM/YYYY" onfocus="this.showPicker && this.showPicker()"/>
+                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="CVV" class="form-label text-white"></label>
+                            <input asp-for="CVV" class="form-control bg-black text-white border-success" placeholder="Enter CVV" />
+                            <span asp-validation-for="CVV" class="text-danger"></span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i>Confirm Payment
+                            </button>
+                            <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-success">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Cart
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="mt-3 text-center">
-    <a asp-controller="Cart" asp-action="Index" class="btn btn-secondary">Back to Cart</a>
-</div>
-
-</div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
 <style>
-        .order-summary, .shipping-address, .payment-method {
-            border: 1px solid #ddd;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
+    body {
+        background-color: #121212;
+        color: #fff;
+    }
 
-        .order-summary table {
-            width: 100%;
-            margin-bottom: 20px;
-        }
+    .card {
+        transition: transform 0.2s ease;
+    }
 
-        .order-summary th, .order-summary td {
-            text-align: center;
-        }
+    .card:hover {
+        transform: translateY(-2px);
+    }
 
-        .payment-method input {
-            margin-bottom: 15px;
-        }
+    .form-control {
+        background-color: #121212;
+        color: #fff;
+        border-color: #28a745;
+    }
 
-        .payment-method .form-label {
-            font-weight: bold;
-        }
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
 
-        .btn-block {
-            width: 100%;
-        }
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
 
-        .btn-secondary {
-            width: auto;
-            margin-top: 10px;
-        }
+    .btn-outline-success {
+        border-color: #28a745;
+        color: #28a745;
+    }
+
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    .table-dark {
+        --bs-table-bg: #121212;
+        --bs-table-color: #fff;
+        --bs-table-border-color: #28a745;
+    }
+
+    .table-dark th, .table-dark td {
+        border-color: #28a745;
+        text-align: center;
+    }
+
+    .text-success {
+        color: #28a745 !important;
+    }
+
+    .text-muted {
+        color: rgba(255, 255, 255, 0.6) !important;
     }
 </style>

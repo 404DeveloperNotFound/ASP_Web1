@@ -36,8 +36,8 @@
                     }
                     else
                     {
-                        <a asp-controller="Cart" asp-action="BuyNow" asp-route-id="@Model.Id" class="btn btn-warning">Buy Now</a>
-                        <button type="button" class="btn btn-sm btn-primary add-to-cart-btn" data-id="@Model.Id">Add to Cart</button>
+                        <a asp-controller="Cart" asp-action="BuyNow" asp-route-id="@Model.Id" class="btn btn-warning @(Model.Quantity <= 0 ? "disabled" : "")">Buy Now</a>
+                        <button type="button" class="btn btn-sm btn-primary add-to-cart-btn @(Model.Quantity <= 0 ? "disabled" : "")" data-id="@Model.Id">Add to Cart</button>
                     }
                 </div>
             </div>

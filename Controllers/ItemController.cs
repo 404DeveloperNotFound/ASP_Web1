@@ -34,7 +34,7 @@ public class ItemController : Controller
                 pageNumber ?? 1,
                 PageSize
             );
-
+             
             ViewData["CurrentSearch"] = search;
             ViewData["CurrentCategory"] = categoryId;
             ViewData["CurrentSort"] = sortOrder;

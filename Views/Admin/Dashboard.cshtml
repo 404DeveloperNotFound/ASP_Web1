@@ -24,6 +24,7 @@
         <table class="table table-dark table-bordered">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Name</th>
                     <th>Price</th>
                     <th>Serial</th>
@@ -36,6 +37,9 @@
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td>
+                            <img src="@item.Image" alt="Item Image" class="img-thumbnail" style="height: 100px; width: 100px; object-fit: cover;" />
+                        </td>
                         <td>@item.Name</td>
                         <td>@item.Price.ToString("C")</td>
                         <td>@item.SerialNumber</td>
@@ -54,8 +58,7 @@
     {
         <table class="table table-dark table-bordered">
             <thead>
-                <tr>
-                    <th>Username</th>
+                <tr><th>Username</th>
                     <th>Email</th>
                     <th>Role</th>
                     <th>Actions</th>
@@ -65,7 +68,12 @@
                 @foreach (var user in Model)
                 {
                     <tr>
-                        <td>@user.Username</td>
+                        <td>
+                            <img src="https://ui-avatars.com/api/?name=@user.Username&background=random&color=fff&bold=true"
+                                 class="rounded-circle"
+                                 style="width: 50px; height: 50px; margin-right:20px; margin-left:20px" />
+                                 @user.Username
+                        </td>
                         <td>@user.Email</td>
                         <td>@user.Role</td>
                         <td>
@@ -98,7 +106,12 @@
                 @foreach (var user in Model)
                 {
                     <tr>
-                        <td>@user.Username</td>
+                        <td>
+                            <img src="https://ui-avatars.com/api/?name=@user.Username&background=random&color=fff&bold=true"
+                                 class="rounded-circle"
+                                 style="width: 50px; height: 50px; margin-right:20px; margin-left:20px" />
+                            @user.Username
+                        </td>
                         <td>@user.Email</td>
                         <td>@user.Role</td>
                     </tr>

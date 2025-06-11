@@ -70,6 +70,7 @@ namespace WebApplication1.Services
                     Name = item.Name,
                     Quantity = 1,
                     Price = (decimal)item.Price,
+                    ImageUrl = item.ImageUrl,
                     MaxQuantity = item.Quantity
                 });
             }
@@ -160,6 +161,7 @@ namespace WebApplication1.Services
                     Name = item.Name,
                     Quantity = 1,
                     Price = (decimal)item.Price,
+                    ImageUrl = item.ImageUrl,
                     MaxQuantity = item.Quantity
                 });
             }

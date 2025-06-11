@@ -37,6 +37,7 @@ namespace WebApplication1.Services
                     i.Id,
                     i.Name,
                     (decimal)i.Price,
+                    i.ImageUrl,
                     i.SerialNumber,
                     i.Category != null ? i.Category.Name : null,
                     i.Quantity

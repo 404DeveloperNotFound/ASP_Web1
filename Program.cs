@@ -85,6 +85,7 @@ internal class Program
         builder.Services.AddSingleton<RedisService>();
         builder.Services.AddScoped<RedisInitializer>();
         builder.Services.AddScoped<RedisToDbSynchronizer>();
+        builder.Services.AddHttpContextAccessor();
 
         // Application services (implement later)
         //builder.Services.AddScoped<ProductListingService>();

@@ -118,8 +118,8 @@ public class AccountController : Controller
             }
 
             // Email verified -> login
-            var claims = BuildClaims(new AuthenticatedUserDto(user.Id, user.Username, user.Email, user.Role, user?.EmailOtp ?? ""));
-            await SignInAsync(claims);
+            var claims = _accountService.BuildClaims(new AuthenticatedUserDto(user.Id, user.Username, user.Email, user.Role, user?.EmailOtp ?? ""));
+            await _accountService.SignInAsync(claims);
 
             var cart = await _cartService.LoadCartFromDbAsync(user.Id);
             await _redisService.SetAsync($"user:{user.Id}:cart", cart, TimeSpan.FromMinutes(30));
@@ -212,38 +212,12 @@ public class AccountController : Controller
             }
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("login", "account");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Logout failed");
             return View("Error");
         }
-    }
-
-    private List<Claim> BuildClaims(AuthenticatedUserDto user)
-    {
-        return new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
-    }
-
-    private async Task SignInAsync(List<Claim> claims)
-    {
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal,
-            new AuthenticationProperties
-            {
-                IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
-            });
     }
 }

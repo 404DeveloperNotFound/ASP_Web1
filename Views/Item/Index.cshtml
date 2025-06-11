@@ -3,23 +3,42 @@
     ViewData["Title"] = "Index";
 }
 
-<div class="d-flex justify-content-between container dark-theme my-2">
-    <h3>All Items</h3>
-    @if (User.IsInRole("Admin"))
-    {
-        <a asp-action="Create"><button class="btn btn-success">Add Item</button></a>
-    }
+<div class="container-fluid bg-dark text-white py-2 mb-2">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="display-6 fw-bold text-success">All Items</h1>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Create" class="btn btn-success btn-lg px-4">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Item
+                </a>
+            }
+        </div>
+    </div>
 </div>
 
 <div class="container">
-    <form asp-action="Index" method="get" class="container mb-4">
+    <form asp-action="Index" method="get" class="container mb-4 bg-dark p-4 rounded-3 shadow">
         <input type="hidden" name="pageNumber" value="1" />
-        <div class="row gx-2 gy-3 align-items-center">
+        <div class="row gx-3 gy-3 align-items-center">
             <div class="col-md-4">
-                <input type="text" name="search" value="@ViewData["CurrentSearch"]" class="form-control" placeholder="Search by name or serial..." />
+                <div class="input-group">
+                    <span class="input-group-text bg-black text-success border-success">
+                        <i class="fas fa-search">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </i>
+                    </span>
+                    <input type="text" name="search" value="@ViewData["CurrentSearch"]"
+                           class="form-control bg-black text-white border-success text-light"
+                           placeholder="Search by name or serial..." />
+                </div>
             </div>
             <div class="col-md-2">
-                <select name="categoryId" class="form-select">
+                <select name="categoryId" class="form-select bg-black text-white border-success">
                     <option value="">All Categories</option>
                     @if (ViewData["Categories"] is SelectList categories)
                     {
@@ -30,99 +49,147 @@
                             </option>
                         }
                     }
-
                 </select>
             </div>
             <div class="col-md-2">
-                <select name="sortOrder" class="form-select">
-                    <option>--sort--</option>
+                <select name="sortOrder" class="form-select bg-black text-white border-success">
+                    <option value="">-- Price Sort --</option>
                     <option value="price_asc" selected=@(ViewData["CurrentSort"]?.ToString() == "price_asc" ? "selected" : "")>Price Low to High</option>
                     <option value="price_desc" selected=@(ViewData["CurrentSort"]?.ToString() == "price_desc" ? "selected" : "")>Price High to Low</option>
                 </select>
             </div>
             <div class="col-md-2">
-                <select name="sortOrder" class="form-select">
-                    <option value="">--sort--</option>
-                    <option value="name_asc" selected=@(ViewData["CurrentSort"]?.ToString() == "name_asc" ? "selected" : "")>Sort by Name (A-Z)</option>
-                    <option value="name_desc" selected=@(ViewData["CurrentSort"]?.ToString() == "name_desc" ? "selected" : "")>Sort by Name (Z-A)</option>
+                <select name="sortOrder" class="form-select bg-black text-white border-success">
+                    <option value="">-- Name Sort --</option>
+                    <option value="name_asc" selected=@(ViewData["CurrentSort"]?.ToString() == "name_asc" ? "selected" : "")>Name (A-Z)</option>
+                    <option value="name_desc" selected=@(ViewData["CurrentSort"]?.ToString() == "name_desc" ? "selected" : "")>Name (Z-A)</option>
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Apply</button>
+                <button type="submit" class="btn btn-success w-100 fw-bold">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
             </div>
         </div>
     </form>
 
-    <div class="row g-4">
-        @if(!Model.Any())
-        {
-            <strong class="d-flex justify-content-center align-items-center mt-5">No Items found</strong>
-        }
-        else
-        {
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 my-5">
+            <i class="fas fa-box-open text-muted fa-4x mb-3"></i>
+            <h3 class="text-white">No Items Found</h3>
+            <p class="text-white">Try adjusting your search or filter criteria</p>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
             @foreach (var item in Model)
             {
-                <div class="col-md-3">
-                    <div class="card bg-dark text-white hover-card d-flex flex-column @(item.Quantity <= 0 ? "out-of-stock" : "")" style="min-height: 25rem; position: relative;">
+                <div class="col">
+                    <div class="card h-100 bg-black text-white @(item.Quantity <= 0 ? "out-of-stock" : "")"
+                         style="box-shadow: 0 4px 8px rgba(0, 255, 0, 0.1);">
                         @if (item.Quantity <= 0)
                         {
                             <div class="stockLabel">OUT OF STOCK</div>
                         }
-                        <div class="card-body d-flex flex-column">
-                            <div class="image-container mb-4 d-flex justify-content-center align-items-center">
+                        <div>
+                            <div class="card-img-top position-relative" style="height: 200px; overflow: hidden;">
                                 <img src="@Url.Content(string.IsNullOrEmpty(item.ImageUrl) ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTK3c711Qnpwx8NGSS2NfnYxn-j2ckJV1Zc5A&s" : item.ImageUrl)"
-                                     class="fixed-image"
-                                     alt="Item Image" />
+                                     class="w-100 h-100 object-fit-cover"
+                                     alt="@item.Name" />
+                                <div class="position-absolute bottom-0 start-0 end-0 p-2"
+                                     style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                                </div>
                             </div>
-                            <h5 class="card-title hover-underline"><a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-white">@item.Name</a></h5>
-                            <h5 class="card-subtitle mb-2 text-success">@item.Price.ToString("C")</h5>
-                            <p class="card-text">
-                                <strong>Serial:</strong> @item?.SerialNumber <br />
-                                <strong>Category:</strong> @item?.CategoryName <br />
-                                <strong>Quantity in Stock:</strong> @item?.Quantity <br />
-                            </p>
-                            <div class="mt-auto">
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <div class="d-flex justify-content-between">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary px-3">Edit</a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title mb-0 text-success">@item.Price.ToString("C")</h5>
+                                <h5 class="card-title">
+                                    @if (item.Quantity > 0)
+                                    {
+                                        <a asp-action="Details" asp-route-id="@item.Id"
+                                           class="text-white text-decoration-none hover-text-success">@item.Name</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-white">@item.Name</span>
+                                    }
+                                </h5>
+                                <div class="card-text mb-3">
+                                    @* <div class="d-flex align-items-center mb-1"> *@
+                                    @*     <i class="fas fa-barcode text-success me-2"></i> *@
+                                    @*     <small>@item?.SerialNumber</small> *@
+                                    @* </div> *@
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="fas fa-tag text-success me-2"></i>
+                                        <small>@item?.CategoryName</small>
                                     </div>
-                                }
-                                else
-                                {
-                                    <div class="d-flex justify-content-between">
-                                        <a asp-controller="Cart" asp-action="BuyNow" asp-route-id="@item.Id" class="btn btn-sm btn-warning px-3">Buy</a>
-                                        <button type="button" class="btn btn-sm btn-primary add-to-cart-btn" data-id="@item.Id">Add to Cart</button>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-cubes text-success me-2"></i>
+                                        <small>@item?.Quantity in stock</small>
                                     </div>
-                                }
+                                </div>
+                                <div class="mt-auto">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <div class="d-flex justify-content-between gap-2">
+                                            <a asp-action="Edit" asp-route-id="@item.Id"
+                                               class="btn btn-sm btn-outline-success flex-grow-1">
+                                                <i class="fas fa-edit me-1"></i> Edit
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id"
+                                               class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex justify-content-between gap-2">
+                                            <a asp-controller="Cart" asp-action="BuyNow" asp-route-id="@item.Id"
+                                               class="btn btn-sm btn-warning flex text-white @(item.Quantity <= 0 ? "disabled" : "")">
+                                                Buy Now
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-success add-to-cart-btn px-4 @(item.Quantity <= 0 ? "disabled" : "")" data-id="@item.Id">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="feather feather-shopping-cart">
+                                                    <circle cx="9" cy="21" r="1"></circle>
+                                                    <circle cx="20" cy="21" r="1"></circle>
+                                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             }
-        }
-    </div>
+        </div>
+    }
 </div>
+
 @if (Model.TotalPages > 1)
 {
-    <div class="pagination-container mt-4">
-        <nav>
+    <div class="container mt-5">
+        <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
                 <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
-                    <a class="page-link"
+                    <a class="page-link bg-black text-success border-success"
                        asp-action="Index"
                        asp-route-pageNumber="@(Model.PageIndex - 1)"
                        asp-route-search="@ViewData["CurrentSearch"]"
                        asp-route-categoryId="@ViewData["CurrentCategory"]"
                        asp-route-sortOrder="@ViewData["CurrentSort"]">
-                        ←
+                        <i class="fas fa-chevron-left">←</i>
                     </a>
                 </li>
                 @for (int i = 1; i <= Model.TotalPages; i++)
                 {
                     <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                        <a class="page-link"
+                        <a class="page-link @(i == Model.PageIndex ? "bg-success border-success" : "bg-black text-success border-success")"
                            asp-action="Index"
                            asp-route-pageNumber="@i"
                            asp-route-search="@ViewData["CurrentSearch"]"
@@ -133,13 +200,13 @@
                     </li>
                 }
                 <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
-                    <a class="page-link"
+                    <a class="page-link bg-black text-success border-success"
                        asp-action="Index"
                        asp-route-pageNumber="@(Model.PageIndex + 1)"
                        asp-route-search="@ViewData["CurrentSearch"]"
                        asp-route-categoryId="@ViewData["CurrentCategory"]"
                        asp-route-sortOrder="@ViewData["CurrentSort"]">
-                        →
+                        <i class="fas fa-chevron-right">→</i>
                     </a>
                 </li>
             </ul>
@@ -148,100 +215,54 @@
 }
 
 <style>
-    .image-container {
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
-        background-color: #1e1e1e; 
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5); 
+    }
+    body {
+        background-color: #121212;
+        color: #e0e0e0;
     }
 
-    .fixed-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 5px;
+    .hover-text-success:hover {
+        color: #28a745 !important;
+        transition: color 0.2s ease;
     }
 
-    .hover-card {
+    .card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        overflow: hidden;
     }
 
-    .hover-card:hover {
-        transform: scale(1.03);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-        cursor: pointer;
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 255, 0, 0.2) !important;
     }
 
-    .hover-underline {
-        transition: text-decoration 0.2s ease;
-    }
-
-    .hover-underline:hover {
-        text-decoration: underline;
-    }
-
-    .pagination-container {
-        margin-top: 2rem;
-        padding: 1rem;
-        background-color: #2d2d2d;
-        border-radius: 5px;
-    }
-
-    .page-item.active .page-link {
-        background-color: #007bff;
-        border-color: #007bff;
-    }
-
-    .page-link {
-        color: #fff;
-        background-color: #404040;
-        border: 1px solid #303030;
-    }
-
-    .page-link:hover {
-        color: #fff;
-        background-color: #505050;
-        border-color: #404040;
-    }
-
-    .page-item.disabled .page-link {
-        background-color: #303030;
-        border-color: #202020;
-        color: #666;
+    .object-fit-cover {
+        object-fit: cover;
     }
 
     .out-of-stock {
         position: relative;
+        opacity: 0.5;
         pointer-events: none;
     }
 
-        .out-of-stock::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 0.35rem;
-        }
-
     .stockLabel {
         position: absolute;
-        top: 40%;
+        top: 50%;
         left: 50%;
-        text-align:center;
         transform: translate(-50%, -50%) rotate(-15deg);
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: 900;
-        color: #ff0000;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        z-index: 2;
-        background: rgba(0, 0, 0, 0.7);
+        color: #ff3333;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.8);
         padding: 0.5rem 1.5rem;
         border-radius: 5px;
-        border: 3px solid #ff0000;
+        border: 2px solid #ff3333;
         animation: pulse 1.5s infinite;
     }
 
@@ -259,4 +280,42 @@
         }
     }
 
+    .page-item.active .page-link {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+
+    .page-link {
+        transition: all 0.2s ease;
+    }
+
+        .page-link:hover {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+    .btn-outline-success:hover {
+        color: #fff;
+    }
+
+    .border-success {
+        border-color: #28a745 !important;
+    }
 </style>

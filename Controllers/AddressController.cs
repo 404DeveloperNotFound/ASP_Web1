@@ -3,9 +3,11 @@ using WebApplication1.Services;
 using WebApplication1.DataTransferObjects;
 using System.Security.Claims;
 using WebApplication1.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
+    [Authorize]
     public class AddressController : Controller
     {
         private readonly IAddressService _addressService;

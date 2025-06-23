@@ -59,7 +59,7 @@ namespace WebApplication1.Services
         public async Task<int> ConfirmPaymentAsync(ConfirmPaymentDto dto, HttpContext httpContext, ClaimsPrincipal user)
         {
             if (dto.CartItems == null || !dto.CartItems.Any())
-                throw new InvalidOperationException("Cart is empty.");
+                throw new InvalidOperationException("Cart is empty."); 
 
             if (user.FindFirst(ClaimTypes.NameIdentifier)?.Value is not string uidStr
                 || !int.TryParse(uidStr, out var clientId))

@@ -2,6 +2,7 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     ViewData["Title"] = "Payment";
+    var currentMonth = DateTime.Now.ToString("yyyy-MM");
 }
 <div class="container py-4">
     <h2 class="text-success mb-4"><i class="fas fa-credit-card me-2"></i>Complete Your Payment</h2>
@@ -84,7 +85,11 @@
                         </div>
                         <div class="mb-3">
                             <label asp-for="ExpiryDate" class="form-label text-white"></label>
-                            <input asp-for="ExpiryDate" class="form-control bg-black text-white border-success" type="month" placeholder="MM/YYYY" onfocus="this.showPicker && this.showPicker()"/>
+                            <input asp-for="ExpiryDate" class="form-control bg-black text-white border-success"
+                                   type="month"
+                                   placeholder="MM/YYYY"
+                                   min="@currentMonth"
+                                   onfocus="this.showPicker && this.showPicker()" />
                             <span asp-validation-for="ExpiryDate" class="text-danger"></span>
                         </div>
                         <div class="mb-3">

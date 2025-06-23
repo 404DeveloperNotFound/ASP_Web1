@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.DataTransferObjects;
 using WebApplication1.Interfaces;
+using WebApplication1.Services;
 using WebApplication1.ViewModel;
 
 namespace WebApplication1.Controllers;
@@ -12,12 +13,14 @@ namespace WebApplication1.Controllers;
 public class OrderController : Controller
 {
     private readonly IOrderService _orderService;
+    private readonly ICartAppService _cartAppService;
     private readonly ILogger<OrderController> _logger;
     private readonly Web1Context _context;
 
-    public OrderController(IOrderService orderService, ILogger<OrderController> logger, Web1Context context)
+    public OrderController(IOrderService orderService, ICartAppService cartService, ILogger<OrderController> logger, Web1Context context)
     {
         _orderService = orderService;
+        _cartAppService = cartService;
         _logger = logger;
         _context = context;
     }
@@ -45,7 +48,7 @@ public class OrderController : Controller
             return RedirectToAction("Select", "Address", new { returnUrl = "/Order/Payment" });
         }
         catch (Exception ex)
-        {
+        { 
             _logger.LogError(ex, "Error preparing payment");
             return RedirectToAction("Select", "Address", new { returnUrl = "/Order/Payment" });
         }
@@ -62,7 +65,8 @@ public class OrderController : Controller
             var address = await _context.Addresses.FindAsync(addressId)
                            ?? throw new KeyNotFoundException("Selected address not found.");
 
-            var sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
+            var sessionCart = await _cartAppService.GetCartAsync(HttpContext, User);
+            if(sessionCart == null) sessionCart = HttpContext.Session.GetObject<SessionCart>("Cart") ?? new SessionCart();
             var cartItems = sessionCart.Items;
 
             var dto = new ConfirmPaymentDto(cartItems, vm.TotalAmount, address);

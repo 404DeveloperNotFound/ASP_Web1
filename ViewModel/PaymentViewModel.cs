@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using WebApplication1.DataTransferObjects;
 using WebApplication1.Models;
+using WebApplication1.ValidationAttributes;
 
 namespace WebApplication1.ViewModel
 {
@@ -20,6 +21,7 @@ namespace WebApplication1.ViewModel
         [Required(ErrorMessage = "Expiry date is required")]
         [RegularExpression(@"^\d{4}-\d{2}$", ErrorMessage = "Expiry date must be in YYYY-MM format")]
         [Display(Name = "Expiry Date")]
+        [FutureOrCurrentMonth(ErrorMessage = "Expiry month cannot be in the past.")]
         public string ExpiryDate { get; set; }
 
         [Required(ErrorMessage = "CVV is required")]
